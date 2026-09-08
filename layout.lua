@@ -12,6 +12,17 @@ if props["page_index"] then
 end
 
 if pageName == "Setup" then
+	graphics["setupBrand"] = {
+		Type = "Text",
+		Text = "MONITOR AUDIO",
+		Color = warmGrey,
+		Font = "Roboto",
+		FontStyle = "Bold",
+		FontSize = 16,
+		HTextAlign = "Right",
+		Position = { 390, 8 },
+		Size = { 170, 24 }
+	}
 	graphics["setupConnectionBox"] = {
 		Type = "GroupBox",
 		Text = "Connection",
@@ -29,64 +40,6 @@ if pageName == "Setup" then
 		StrokeColor = warmGrey,
 		StrokeWidth = 1,
 		CornerRadius = 8
-	}
-	layout["lblSetupLogo"] = {
-		PrettyName = "Setup~Logo",
-		Style = "Text",
-		Text = "MONITOR AUDIO",
-		Position = { 390, 12 },
-		Size = { 180, 24 }
-	}
-	layout["lblConnection"] = {
-		PrettyName = "Setup~Connection~Header",
-		Style = "Text",
-		Text = "Connection",
-		Position = { 24, 44 },
-		Size = { 260, 20 }
-	}
-	layout["lblIpAddress"] = {
-		PrettyName = "Setup~Connection~IP Address Label",
-		Style = "Text",
-		Text = "IP Address",
-		Position = { 24, 72 },
-		Size = { 120, 18 }
-	}
-	layout["lblPort"] = {
-		PrettyName = "Setup~Connection~Port Label",
-		Style = "Text",
-		Text = "Port",
-		Position = { 220, 72 },
-		Size = { 56, 18 }
-	}
-	layout["lblConnected"] = {
-		PrettyName = "Setup~Connection~Connected Label",
-		Style = "Text",
-		Text = "Connected",
-		Position = { 356, 76 },
-		Size = { 80, 16 }
-	}
-	layout["lblInformation"] = {
-		PrettyName = "Setup~Information~Header",
-		Style = "Text",
-		Text = "Information",
-		Position = { 24, 178 },
-		Size = { 180, 20 }
-	}
-	layout["lblDeviceId"] = {
-		PrettyName = "Setup~Device~ID Label",
-		Style = "Text",
-		Text = "Device ID",
-		Position = { 24, 210 },
-		Size = { 72, 24 }
-	}
-	graphics["setupLogo"] = {
-		Type = "Text",
-		Text = "MONITOR AUDIO",
-		Color = warmGrey,
-		FontSize = 14,
-		HAlign = "Right",
-		Position = { 390, 12 },
-		Size = { 180, 24 }
 	}
 	graphics["setupConnectionHeader"] = {
 		Type = "Text",
@@ -140,6 +93,14 @@ if pageName == "Setup" then
 		Position = { 356, 76 },
 		Size = { 80, 16 }
 	}
+	graphics["setupInformationHeader"] = {
+		Type = "Text",
+		Text = "DEVICE INFORMATION",
+		Color = beige,
+		FontSize = 14,
+		Position = { 24, 178 },
+		Size = { 220, 20 }
+	}
 	layout["btnIdentify"] = {
 		PrettyName = "Setup~Connection~Identify (ID)",
 		Style = "Button",
@@ -192,6 +153,17 @@ if pageName == "Setup" then
 		}
 	end
 else
+graphics["audioBrand"] = {
+	Type = "Text",
+	Text = "MONITOR AUDIO  /  IA SERIES",
+	Color = warmGrey,
+	Font = "Roboto",
+	FontStyle = "Bold",
+	FontSize = 14,
+	HTextAlign = "Right",
+	Position = { 690, 12 },
+	Size = { 230, 22 }
+}
 	graphics["audioPowerBox"] = {
 		Type = "GroupBox",
 		Text = "Power",
