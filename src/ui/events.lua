@@ -20,19 +20,28 @@ UI.Setup.IP.EventHandler = function()
 	if funcValidateIP(enteredIP) then
 		Device.Setup.IP = enteredIP
 	else
-		Device.Setup.IP = ""
-		UI.Setup.IP.String = "Invalid IP"
+		UI.Setup.IP.String = Device.Setup.IP
+		Logger.Error(tblDebug.Source.UCI, "txtIpAddress ignored: invalid IP")
 	end
 	UI.UpdateSetup()
-	UI.TryConnect()
+	if funcValidateIP(Device.Setup.IP) and Device.Setup.Port > 0 and Device.Setup.Port <= 65535 then
+		UI.TryConnect()
+	end
 end
 
 UI.Setup.Port.EventHandler = function()
 	local port = tonumber(UI.Setup.Port.String)
 	Logger.Uci("txtPort", "value changed to " .. tostring(UI.Setup.Port.String))
-	Device.Setup.Port = port or 0
+	if port and port > 0 and port <= 65535 then
+		Device.Setup.Port = port
+	else
+		UI.Setup.Port.String = tostring(Device.Setup.Port)
+		Logger.Error(tblDebug.Source.UCI, "txtPort ignored: invalid port")
+	end
 	UI.UpdateSetup()
-	UI.TryConnect()
+	if funcValidateIP(Device.Setup.IP) and Device.Setup.Port > 0 and Device.Setup.Port <= 65535 then
+		UI.TryConnect()
+	end
 end
 
 function UI.SimulateConnection()

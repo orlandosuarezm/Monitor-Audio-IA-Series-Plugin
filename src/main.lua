@@ -9,6 +9,9 @@ function funcInit()
     UI.Init()
     UI.UpdateSetup()
     UI.UpdateDevice()
+    if funcValidateIP(Device.Setup.IP) and Device.Setup.Port > 0 and Device.Setup.Port <= 65535 then
+        UI.TryConnect()
+    end
     Logger.Message(tblDebug.Source.Init, "Monitor Audio IA Series plugin")
 end
 
