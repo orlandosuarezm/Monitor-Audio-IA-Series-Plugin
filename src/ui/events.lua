@@ -68,10 +68,16 @@ for i = 1, kMaxZones do
 	end
 
 	UI.Zones[zoneIndex].VolUp.EventHandler = function()
-		if UI.Zones[zoneIndex].VolUp.Boolean and Device.SetZoneGain(zoneIndex, 1) then Device.SetZoneMute(zoneIndex, false); UI.UpdateZones() end
+		if Device.SetZoneGain(zoneIndex, 1) then
+			Device.SetZoneMute(zoneIndex, false)
+			UI.UpdateZones()
+		end
 	end
 	UI.Zones[zoneIndex].VolDown.EventHandler = function()
-		if UI.Zones[zoneIndex].VolDown.Boolean and Device.SetZoneGain(zoneIndex, -1) then Device.SetZoneMute(zoneIndex, false); UI.UpdateZones() end
+		if Device.SetZoneGain(zoneIndex, -1) then
+			Device.SetZoneMute(zoneIndex, false)
+			UI.UpdateZones()
+		end
 	end
 	UI.Zones[zoneIndex].Mute.EventHandler = function()
 		if Device.Zones[zoneIndex] then Device.SetZoneMute(zoneIndex, UI.Zones[zoneIndex].Mute.Boolean); UI.UpdateZones() end
