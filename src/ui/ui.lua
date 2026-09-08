@@ -66,11 +66,7 @@ function UI.UpdateSetup()
 end
 
 function UI.Init()
-	local savedIP, savedPort = UI.Setup.IP.String, tonumber(UI.Setup.Port.String)
-	if funcValidateIP(savedIP) then Device.Setup.IP = savedIP end
-	if savedPort and savedPort > 0 and savedPort <= 65535 then Device.Setup.Port = savedPort end
 	UI.Setup.IP.String = Device.Setup.IP
-	UI.Setup.Port.String = Device.Setup.Port > 0 and tostring(Device.Setup.Port) or ""
 	UI.UpdateSetup()
 	UI.UpdateZones()
 end
