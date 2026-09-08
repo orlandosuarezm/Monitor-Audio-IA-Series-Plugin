@@ -186,18 +186,91 @@ else
 		PrettyName = "Audio~Amplifier Power",
 		Style = "Button",
 		ButtonStyle = "Toggle",
-		Legend = "Power",
+		Legend = "⏻",
 		Color = heritageGreen,
 		Position = { 20, 8 },
-		Size = { 80, 28 }
+		Size = { 44, 32 }
+	}
+	graphics["audioTitle"] = {
+		Type = "Text",
+		Text = "AMPLIFIER OUTPUTS",
+		Color = beige,
+		FontSize = 14,
+		Position = { 76, 12 },
+		Size = { 240, 24 }
 	}
 	for index = 1, 12 do
-		local x = 20 + ((index - 1) % 4) * 72
-		local y = 48 + math.floor((index - 1) / 4) * 112
+		local column = (index - 1) % 4
+		local row = math.floor((index - 1) / 4)
+		local x = 20 + column * 142
+		local y = 52 + row * 142
 		local suffix = " " .. index
-		layout["txtLabels" .. suffix] = { PrettyName = "Audio~Zone " .. index .. "~Label", Style = "Text", Position = { x, y }, Size = { 64, 18 } }
-		layout["listInputs" .. suffix] = { PrettyName = "Audio~Zone " .. index .. "~Input", Style = "Text", Position = { x, y + 20 }, Size = { 64, 18 } }
-		layout["fader" .. suffix] = { PrettyName = "Audio~Zone " .. index .. "~Gain", Style = "Fader", Color = beige, Position = { x, y + 42 }, Size = { 24, 52 } }
-		layout["btnMute" .. suffix] = { PrettyName = "Audio~Zone " .. index .. "~Mute", Style = "Button", ButtonStyle = "Toggle", Legend = "M", Color = gold, Position = { x + 30, y + 42 }, Size = { 28, 20 } }
+		graphics["zoneCard" .. index] = {
+			Type = "GroupBox",
+			Text = "ZONE " .. index,
+			Position = { x - 8, y - 8 },
+			Size = { 132, 126 },
+			Stroke = heritageGreen,
+			StrokeWidth = 1,
+			CornerRadius = 6
+		}
+		graphics["zoneGainLabel" .. index] = {
+			Type = "Text",
+			Text = "GAIN",
+			Color = warmGrey,
+			FontSize = 9,
+			Position = { x + 52, y + 37 },
+			Size = { 42, 14 }
+		}
+		layout["txtLabels" .. suffix] = {
+			PrettyName = "Audio~Zone " .. index .. "~Label",
+			Style = "TextBox",
+			TextBoxStyle = "Text",
+			TextColor = beige,
+			Position = { x, y },
+			Size = { 116, 22 }
+		}
+		layout["listInputs" .. suffix] = {
+			PrettyName = "Audio~Zone " .. index .. "~Input",
+			Style = "TextBox",
+			TextBoxStyle = "Text",
+			TextColor = warmGrey,
+			Position = { x, y + 24 },
+			Size = { 116, 22 }
+		}
+		layout["btnVolUp" .. suffix] = {
+			PrettyName = "Audio~Zone " .. index .. "~Volume Up",
+			Style = "Button",
+			ButtonStyle = "Trigger",
+			Legend = "▲",
+			Color = heritageGreen,
+			Position = { x, y + 48 },
+			Size = { 28, 22 }
+		}
+		layout["fader" .. suffix] = {
+			PrettyName = "Audio~Zone " .. index .. "~Gain",
+			Style = "Fader",
+			Color = beige,
+			Position = { x + 36, y + 46 },
+			Size = { 24, 42 }
+		}
+		layout["btnVolDown" .. suffix] = {
+			PrettyName = "Audio~Zone " .. index .. "~Volume Down",
+			Style = "Button",
+			ButtonStyle = "Trigger",
+			Legend = "▼",
+			Color = heritageGreen,
+			Position = { x + 72, y + 48 },
+			Size = { 28, 22 }
+		}
+		layout["btnMute" .. suffix] = {
+			PrettyName = "Audio~Zone " .. index .. "~Mute",
+			Style = "Button",
+			ButtonStyle = "Toggle",
+			Legend = "MUTE",
+			Color = { 204, 94, 61 },
+			Position = { x + 36, y + 92 },
+			Size = { 52, 22 }
+		}
 	end
 end
