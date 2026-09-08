@@ -11,6 +11,12 @@ for i = 1, kMaxZones do
 end
 
 local inputIDs = { 100, 101, 102, 103, 200 }
+local inputChoices = {}
+for _, inputID in ipairs(inputIDs) do
+	table.insert(inputChoices, tblInputs[inputID].Description)
+end
+for i = 1, kMaxZones do UI.Zones[i].Inputs.Choices = inputChoices end
+
 function UI.EnableInformation(enabled)
 	for _, control in ipairs(Controls.txtInformation) do control.IsDisabled = not enabled end
 end

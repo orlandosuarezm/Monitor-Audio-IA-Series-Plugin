@@ -102,8 +102,7 @@ Count = 12 })
 
 table.insert(ctrls, 
 { Name = "listInputs", 
-  ControlType = "ComboBox",
-  Choices = { "Analog 1", "Analog 2", "Analog 3", "Analog 4", "S/PDIF" },
+  ControlType = "Text",  
   PinStyle = "Both", 
   UserPin = true, 
   Count = 12 })
