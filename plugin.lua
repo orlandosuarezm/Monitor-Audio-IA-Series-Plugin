@@ -4,7 +4,7 @@
 --[[ #include "info.lua" ]]
 
 function GetColor(props)
-    return { 42, 68, 82 }
+    return { 88, 98, 80 }
 end
 
 function GetPrettyName(props)

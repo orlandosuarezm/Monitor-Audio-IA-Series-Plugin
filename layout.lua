@@ -1,4 +1,10 @@
 local pageName = "Setup"
+local charcoal = { 31, 31, 32 }
+local black = { 29, 31, 30 }
+local warmGrey = { 211, 209, 199 }
+local beige = { 227, 226, 221 }
+local heritageGreen = { 88, 98, 80 }
+local gold = { 157, 127, 94 }
 
 if props["page_index"] then
 	local pageNames = { "Setup", "Audio" }
@@ -58,7 +64,7 @@ if pageName == "Setup" then
 	graphics["setupLogo"] = {
 		Type = "Text",
 		Text = "MONITOR AUDIO",
-		Color = { 255, 255, 255 },
+		Color = warmGrey,
 		FontSize = 14,
 		HAlign = "Right",
 		Position = { 390, 12 },
@@ -67,7 +73,7 @@ if pageName == "Setup" then
 	graphics["setupConnectionHeader"] = {
 		Type = "Text",
 		Text = "Connection",
-		Color = { 255, 255, 255 },
+		Color = beige,
 		FontSize = 14,
 		Position = { 24, 44 },
 		Size = { 260, 20 }
@@ -75,7 +81,7 @@ if pageName == "Setup" then
 	graphics["setupIpLabel"] = {
 		Type = "Text",
 		Text = "IP Address",
-		Color = { 255, 255, 255 },
+		Color = warmGrey,
 		FontSize = 12,
 		Position = { 24, 72 },
 		Size = { 120, 18 }
@@ -83,7 +89,7 @@ if pageName == "Setup" then
 	graphics["setupPortLabel"] = {
 		Type = "Text",
 		Text = "Port",
-		Color = { 255, 255, 255 },
+		Color = warmGrey,
 		FontSize = 12,
 		Position = { 220, 72 },
 		Size = { 56, 18 }
@@ -111,7 +117,7 @@ if pageName == "Setup" then
 	graphics["setupConnectedLabel"] = {
 		Type = "Text",
 		Text = "Connected",
-		Color = { 255, 255, 255 },
+		Color = warmGrey,
 		FontSize = 12,
 		Position = { 356, 76 },
 		Size = { 80, 16 }
@@ -121,6 +127,7 @@ if pageName == "Setup" then
 		Style = "Button",
 		ButtonStyle = "Toggle",
 		Legend = "ID",
+		Color = gold,
 		Position = { 474, 72 },
 		Size = { 80, 28 }
 	}
@@ -129,13 +136,14 @@ if pageName == "Setup" then
 		Style = "Button",
 		ButtonStyle = "Trigger",
 		Legend = "Test Connection",
+		Color = heritageGreen,
 		Position = { 24, 128 },
 		Size = { 130, 28 }
 	}
 	graphics["setupInformationHeader"] = {
 		Type = "Text",
 		Text = "Information",
-		Color = { 255, 255, 255 },
+		Color = beige,
 		FontSize = 14,
 		Position = { 24, 178 },
 		Size = { 180, 20 }
@@ -149,7 +157,7 @@ if pageName == "Setup" then
 	graphics["setupDeviceIdLabel"] = {
 		Type = "Text",
 		Text = "Device ID",
-		Color = { 255, 255, 255 },
+		Color = warmGrey,
 		FontSize = 12,
 		Position = { 24, 210 },
 		Size = { 72, 24 }
@@ -161,7 +169,7 @@ if pageName == "Setup" then
 		graphics["setupInfoLabel" .. index] = {
 			Type = "Text",
 			Text = name,
-			Color = { 255, 255, 255 },
+			Color = warmGrey,
 			FontSize = 12,
 			Position = { 24, y },
 			Size = { 90, index == 4 and 48 or 24 }
@@ -179,6 +187,7 @@ else
 		Style = "Button",
 		ButtonStyle = "Toggle",
 		Legend = "Power",
+		Color = heritageGreen,
 		Position = { 20, 8 },
 		Size = { 80, 28 }
 	}
@@ -188,7 +197,7 @@ else
 		local suffix = " " .. index
 		layout["txtLabels" .. suffix] = { PrettyName = "Audio~Zone " .. index .. "~Label", Style = "Text", Position = { x, y }, Size = { 64, 18 } }
 		layout["listInputs" .. suffix] = { PrettyName = "Audio~Zone " .. index .. "~Input", Style = "Text", Position = { x, y + 20 }, Size = { 64, 18 } }
-		layout["fader" .. suffix] = { PrettyName = "Audio~Zone " .. index .. "~Gain", Style = "Fader", Position = { x, y + 42 }, Size = { 24, 52 } }
-		layout["btnMute" .. suffix] = { PrettyName = "Audio~Zone " .. index .. "~Mute", Style = "Button", ButtonStyle = "Toggle", Legend = "M", Position = { x + 30, y + 42 }, Size = { 28, 20 } }
+		layout["fader" .. suffix] = { PrettyName = "Audio~Zone " .. index .. "~Gain", Style = "Fader", Color = beige, Position = { x, y + 42 }, Size = { 24, 52 } }
+		layout["btnMute" .. suffix] = { PrettyName = "Audio~Zone " .. index .. "~Mute", Style = "Button", ButtonStyle = "Toggle", Legend = "M", Color = gold, Position = { x + 30, y + 42 }, Size = { 28, 20 } }
 	end
 end
