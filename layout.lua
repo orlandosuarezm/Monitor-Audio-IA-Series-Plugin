@@ -25,7 +25,7 @@ if pageName == "Setup" then
 	}
 	graphics["setupConnectionBox"] = {
 		Type = "GroupBox",
-		Text = "",
+		Text = "Network settings",
 		Position = { 12, 32 },
 		Size = { 558, 116 },
 		StrokeColor = warmGrey,
@@ -34,7 +34,7 @@ if pageName == "Setup" then
 	}
 	graphics["setupInformationBox"] = {
 		Type = "GroupBox",
-		Text = "",
+		Text = "Amplifier information (read-only)",
 		Position = { 12, 164 },
 		Size = { 558, 278 },
 		StrokeColor = warmGrey,
@@ -69,7 +69,6 @@ if pageName == "Setup" then
 		PrettyName = "Setup~Connection~IP Address",
 		Style = "TextBox",
 		TextBoxStyle = "Text",
-		Color = beige,
 		Position = { 24, 92 },
 		Size = { 180, 24 }
 	}
@@ -77,7 +76,6 @@ if pageName == "Setup" then
 		PrettyName = "Setup~Connection~Port",
 		Style = "TextBox",
 		TextBoxStyle = "Text",
-		Color = beige,
 		Position = { 220, 92 },
 		Size = { 56, 24 }
 	}
@@ -124,7 +122,6 @@ if pageName == "Setup" then
 	layout["txtDeviceId"] = {
 		PrettyName = "Setup~Amplifier information~Device ID",
 		Style = "Text",
-		Color = beige,
 		Position = { 120, 210 },
 		Size = { 390, 24 }
 	}
@@ -151,7 +148,6 @@ if pageName == "Setup" then
 		layout["txtInformation " .. index] = {
 			PrettyName = "Setup~Device Information~" .. name,
 			Style = "Text",
-			Color = beige,
 			Position = { 120, y },
 			Size = { 390, index == 4 and 48 or 24 }
 		}
