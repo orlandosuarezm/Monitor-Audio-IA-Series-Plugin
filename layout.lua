@@ -25,7 +25,7 @@ if pageName == "Setup" then
 	}
 	graphics["setupConnectionBox"] = {
 		Type = "GroupBox",
-		Text = "Connection",
+		Text = "Network settings",
 		Position = { 12, 32 },
 		Size = { 558, 116 },
 		StrokeColor = warmGrey,
@@ -34,7 +34,7 @@ if pageName == "Setup" then
 	}
 	graphics["setupInformationBox"] = {
 		Type = "GroupBox",
-		Text = "Information",
+		Text = "Amplifier information (read-only)",
 		Position = { 12, 164 },
 		Size = { 558, 278 },
 		StrokeColor = warmGrey,
@@ -43,7 +43,7 @@ if pageName == "Setup" then
 	}
 	graphics["setupConnectionHeader"] = {
 		Type = "Text",
-		Text = "IP AMPLIFIER CONNECTION",
+		Text = "ENTER THE AMPLIFIER NETWORK SETTINGS",
 		Color = beige,
 		FontSize = 14,
 		Position = { 24, 44 },
@@ -51,7 +51,7 @@ if pageName == "Setup" then
 	}
 	graphics["setupIpLabel"] = {
 		Type = "Text",
-		Text = "IP Address",
+		Text = "Amplifier IP address",
 		Color = warmGrey,
 		FontSize = 12,
 		Position = { 24, 72 },
@@ -59,7 +59,7 @@ if pageName == "Setup" then
 	}
 	graphics["setupPortLabel"] = {
 		Type = "Text",
-		Text = "Port",
+		Text = "TCP port",
 		Color = warmGrey,
 		FontSize = 12,
 		Position = { 220, 72 },
@@ -87,7 +87,7 @@ if pageName == "Setup" then
 	}
 	graphics["setupConnectedLabel"] = {
 		Type = "Text",
-		Text = "Connected",
+		Text = "Connection status",
 		Color = warmGrey,
 		FontSize = 12,
 		Position = { 356, 76 },
@@ -95,48 +95,48 @@ if pageName == "Setup" then
 	}
 	graphics["setupInformationHeader"] = {
 		Type = "Text",
-		Text = "DEVICE INFORMATION",
+		Text = "INFORMATION RECEIVED FROM AMPLIFIER",
 		Color = beige,
 		FontSize = 14,
 		Position = { 24, 178 },
 		Size = { 220, 20 }
 	}
 	layout["btnIdentify"] = {
-		PrettyName = "Setup~Connection~Identify (ID)",
+		PrettyName = "Setup~Actions~Identify amplifier",
 		Style = "Button",
 		ButtonStyle = "Toggle",
-		Legend = "ID",
+		Legend = "Identify",
 		Color = gold,
 		Position = { 474, 72 },
-		Size = { 80, 28 }
+		Size = { 84, 28 }
 	}
 	layout["btnSimulateConnection"] = {
-		PrettyName = "Setup~Connection~Test Connection",
+		PrettyName = "Setup~Actions~Test connection",
 		Style = "Button",
 		ButtonStyle = "Trigger",
 		Legend = "Test Connection",
 		Color = heritageGreen,
-		Position = { 24, 128 },
+		Position = { 350, 128 },
 		Size = { 130, 28 }
 	}
 	layout["txtDeviceId"] = {
-		PrettyName = "Setup~Device~ID",
+		PrettyName = "Setup~Amplifier information~Device ID",
 		Style = "Text",
 		Position = { 120, 210 },
-		Size = { 176, 24 }
+		Size = { 390, 24 }
 	}
 	graphics["setupDeviceIdLabel"] = {
 		Type = "Text",
-		Text = "Device ID",
+		Text = "Device identifier",
 		Color = warmGrey,
 		FontSize = 12,
 		Position = { 24, 210 },
 		Size = { 72, 24 }
 	}
 
-	local infoNames = { "Model", "Serial Number", "MAC Address", "Description" }
+	local infoNames = { "Amplifier model", "Serial number", "MAC address", "Description" }
 	for index, name in ipairs(infoNames) do
-		local y = 248 + (index - 1) * 46
+		local y = 248 + (index - 1) * 42
 		graphics["setupInfoLabel" .. index] = {
 			Type = "Text",
 			Text = name,
@@ -149,7 +149,7 @@ if pageName == "Setup" then
 			PrettyName = "Setup~Device Information~" .. name,
 			Style = "Text",
 			Position = { 120, y },
-			Size = { 176, index == 4 and 48 or 24 }
+			Size = { 390, index == 4 and 48 or 24 }
 		}
 	end
 else
