@@ -12,6 +12,24 @@ if props["page_index"] then
 end
 
 if pageName == "Setup" then
+	graphics["setupConnectionBox"] = {
+		Type = "GroupBox",
+		Text = "Connection",
+		Position = { 12, 32 },
+		Size = { 558, 116 },
+		StrokeColor = warmGrey,
+		StrokeWidth = 1,
+		CornerRadius = 8
+	}
+	graphics["setupInformationBox"] = {
+		Type = "GroupBox",
+		Text = "Information",
+		Position = { 12, 164 },
+		Size = { 558, 278 },
+		StrokeColor = warmGrey,
+		StrokeWidth = 1,
+		CornerRadius = 8
+	}
 	layout["lblSetupLogo"] = {
 		PrettyName = "Setup~Logo",
 		Style = "Text",
@@ -72,7 +90,7 @@ if pageName == "Setup" then
 	}
 	graphics["setupConnectionHeader"] = {
 		Type = "Text",
-		Text = "Connection",
+		Text = "IP AMPLIFIER CONNECTION",
 		Color = beige,
 		FontSize = 14,
 		Position = { 24, 44 },
@@ -140,14 +158,6 @@ if pageName == "Setup" then
 		Position = { 24, 128 },
 		Size = { 130, 28 }
 	}
-	graphics["setupInformationHeader"] = {
-		Type = "Text",
-		Text = "Information",
-		Color = beige,
-		FontSize = 14,
-		Position = { 24, 178 },
-		Size = { 180, 20 }
-	}
 	layout["txtDeviceId"] = {
 		PrettyName = "Setup~Device~ID",
 		Style = "Text",
@@ -182,95 +192,95 @@ if pageName == "Setup" then
 		}
 	end
 else
+	graphics["audioPowerBox"] = {
+		Type = "GroupBox",
+		Text = "Power",
+		HTextAlign = "Left",
+		Fill = charcoal,
+		StrokeColor = warmGrey,
+		StrokeWidth = 1,
+		CornerRadius = 8,
+		Position = { 12, 10 },
+		Size = { 170, 62 }
+	}
 	layout["btnPower"] = {
 		PrettyName = "Audio~Amplifier Power",
 		Style = "Button",
 		ButtonStyle = "Toggle",
 		Legend = "⏻",
 		Color = heritageGreen,
-		Position = { 20, 8 },
-		Size = { 44, 32 }
+		Position = { 30, 30 },
+		Size = { 54, 32 }
 	}
-	graphics["audioTitle"] = {
-		Type = "Text",
-		Text = "AMPLIFIER OUTPUTS",
-		Color = beige,
-		FontSize = 14,
-		Position = { 76, 12 },
-		Size = { 240, 24 }
+	graphics["audioChannelsBox"] = {
+		Type = "GroupBox",
+		Text = "Channels",
+		HTextAlign = "Left",
+		Fill = charcoal,
+		StrokeColor = warmGrey,
+		StrokeWidth = 1,
+		CornerRadius = 8,
+		Position = { 12, 86 },
+		Size = { 920, 430 }
 	}
 	for index = 1, 12 do
-		local column = (index - 1) % 4
-		local row = math.floor((index - 1) / 4)
-		local x = 20 + column * 142
-		local y = 52 + row * 142
+		local x = 28 + (index - 1) * 75
+		local y = 112
 		local suffix = " " .. index
-		graphics["zoneCard" .. index] = {
-			Type = "GroupBox",
-			Text = "ZONE " .. index,
-			Position = { x - 8, y - 8 },
-			Size = { 132, 126 },
-			Stroke = heritageGreen,
-			StrokeWidth = 1,
-			CornerRadius = 6
-		}
-		graphics["zoneGainLabel" .. index] = {
+		graphics["zoneLabel" .. index] = {
 			Type = "Text",
-			Text = "GAIN",
-			Color = warmGrey,
-			FontSize = 9,
-			Position = { x + 52, y + 37 },
-			Size = { 42, 14 }
+			Text = "Zone " .. string.char(64 + index),
+			Color = beige,
+			FontSize = 10,
+			HTextAlign = "Center",
+			Position = { x, y },
+			Size = { 68, 22 }
 		}
 		layout["txtLabels" .. suffix] = {
 			PrettyName = "Audio~Zone " .. index .. "~Label",
-			Style = "TextBox",
-			TextBoxStyle = "Text",
-			TextColor = beige,
+			Style = "Text",
 			Position = { x, y },
-			Size = { 116, 22 }
-		}
-		layout["listInputs" .. suffix] = {
-			PrettyName = "Audio~Zone " .. index .. "~Input",
-			Style = "TextBox",
-			TextBoxStyle = "Text",
-			TextColor = warmGrey,
-			Position = { x, y + 24 },
-			Size = { 116, 22 }
+			Size = { 68, 22 }
 		}
 		layout["btnVolUp" .. suffix] = {
 			PrettyName = "Audio~Zone " .. index .. "~Volume Up",
 			Style = "Button",
 			ButtonStyle = "Trigger",
-			Legend = "▲",
+			Legend = "🔊",
 			Color = heritageGreen,
-			Position = { x, y + 48 },
-			Size = { 28, 22 }
+			Position = { x, y + 26 },
+			Size = { 68, 42 }
+		}
+		layout["listInputs" .. suffix] = {
+			PrettyName = "Audio~Zone " .. index .. "~Input",
+			Style = "Text",
+			Position = { x, y + 76 },
+			Size = { 68, 28 }
 		}
 		layout["fader" .. suffix] = {
 			PrettyName = "Audio~Zone " .. index .. "~Gain",
 			Style = "Fader",
 			Color = beige,
-			Position = { x + 36, y + 46 },
-			Size = { 24, 42 }
+			Position = { x + 22, y + 116 },
+			Size = { 24, 190 }
 		}
 		layout["btnVolDown" .. suffix] = {
 			PrettyName = "Audio~Zone " .. index .. "~Volume Down",
 			Style = "Button",
 			ButtonStyle = "Trigger",
-			Legend = "▼",
+			Legend = "🔉",
 			Color = heritageGreen,
-			Position = { x + 72, y + 48 },
-			Size = { 28, 22 }
+			Position = { x, y + 318 },
+			Size = { 68, 42 }
 		}
 		layout["btnMute" .. suffix] = {
 			PrettyName = "Audio~Zone " .. index .. "~Mute",
 			Style = "Button",
 			ButtonStyle = "Toggle",
-			Legend = "MUTE",
+			Legend = "🔇",
 			Color = { 204, 94, 61 },
-			Position = { x + 36, y + 92 },
-			Size = { 52, 22 }
+			Position = { x, y + 366 },
+			Size = { 68, 42 }
 		}
 	end
 end
