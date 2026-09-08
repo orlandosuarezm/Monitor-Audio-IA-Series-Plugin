@@ -3,8 +3,8 @@ tblDebug = {
 	Enabled = true,
 	Name = "Monitor Audio",
 	Type = { Message = "Message", Error = "Error" },
-	Source = { Init = "Init", Setup = "Setup", UCI = "UCI", UI = "UI", TCP = "TCP", TX = "TX", RX = "RX" },
-	Filter = { Init = true, Setup = true, UCI = true, UI = true, TCP = true, TX = true, RX = true }
+	Source = { Init = "Init", Setup = "Setup", UI = "UI", TCP = "TCP", TX = "TX", RX = "RX" },
+	Filter = { Init = true, Setup = true, UI = true, TCP = true, TX = true, RX = true }
 }
 
 local function WriteLog(argSource, argType, argMessage)
@@ -49,10 +49,4 @@ end
 
 function Logger.Rx(response)
 	WriteLog(tblDebug.Source.RX, tblDebug.Type.Message, response)
-end
-
-function Logger.Uci(controlName, message)
-	local detail = tostring(controlName)
-	if message and message ~= "" then detail = detail .. " - " .. tostring(message) end
-	WriteLog(tblDebug.Source.UCI, tblDebug.Type.Message, detail)
 end
