@@ -12,3 +12,7 @@ Desktop.ini
 *.tmp
 *.bak
 *.old
+
+# Generated Q-SYS plugin packages
+dist/
+*.qplug
