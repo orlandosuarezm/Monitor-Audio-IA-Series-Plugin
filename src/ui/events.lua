@@ -79,7 +79,6 @@ for i = 1, kMaxZones do
 
 	UI.Zones[zoneIndex].VolUp.EventHandler = function()
 		Logger.Uci("btnVolUp " .. zoneIndex, "pressed")
-		if not UI.Zones[zoneIndex].VolUp.Boolean then return end
 		if Device.SetZoneGain(zoneIndex, 1) then
 			Device.SetZoneMute(zoneIndex, false)
 			UI.UpdateZones()
@@ -90,7 +89,6 @@ for i = 1, kMaxZones do
 	end
 	UI.Zones[zoneIndex].VolDown.EventHandler = function()
 		Logger.Uci("btnVolDown " .. zoneIndex, "pressed")
-		if not UI.Zones[zoneIndex].VolDown.Boolean then return end
 		if Device.SetZoneGain(zoneIndex, -1) then
 			Device.SetZoneMute(zoneIndex, false)
 			UI.UpdateZones()

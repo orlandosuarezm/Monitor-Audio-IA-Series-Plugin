@@ -199,15 +199,6 @@ graphics["audioBrand"] = {
 		local x = 28 + (index - 1) * 75
 		local y = 112
 		local suffix = " " .. index
-		graphics["zoneLabel" .. index] = {
-			Type = "Text",
-			Text = "Zone " .. string.char(64 + index),
-			Color = beige,
-			FontSize = 10,
-			HTextAlign = "Center",
-			Position = { x, y },
-			Size = { 68, 22 }
-		}
 		layout["txtLabels" .. suffix] = {
 			PrettyName = "Audio~Zone " .. index .. "~Label",
 			Style = "Text",
@@ -225,7 +216,7 @@ graphics["audioBrand"] = {
 		}
 		layout["listInputs" .. suffix] = {
 			PrettyName = "Audio~Zone " .. index .. "~Input",
-			Style = "Text",
+			Style = "ComboBox",
 			Position = { x, y + 76 },
 			Size = { 68, 28 }
 		}
