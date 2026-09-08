@@ -31,15 +31,14 @@ end
 
 function GetControlLayout(props)
     local layout = {}
-    local graphics = {}
-    setmetatable(graphics, {
-        __newindex = function(target, name, graphic)
-            rawset(target, name, graphic)
-            table.insert(target, graphic)
-        end
-    })
+    local namedGraphics = {}
+    local graphics = namedGraphics
     --[[ #include "layout.lua" ]]
-    return layout, graphics
+    local orderedGraphics = {}
+    for _, graphic in pairs(namedGraphics) do
+        table.insert(orderedGraphics, graphic)
+    end
+    return layout, orderedGraphics
 end
 
 function GetComponents(props)
