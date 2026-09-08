@@ -32,6 +32,12 @@ end
 function GetControlLayout(props)
     local layout = {}
     local graphics = {}
+    setmetatable(graphics, {
+        __newindex = function(target, name, graphic)
+            rawset(target, name, graphic)
+            table.insert(target, graphic)
+        end
+    })
     --[[ #include "layout.lua" ]]
     return layout, graphics
 end
