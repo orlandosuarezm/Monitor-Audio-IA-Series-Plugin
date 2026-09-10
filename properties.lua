@@ -15,3 +15,23 @@ table.insert(props, {
     Choices = { "Dark", "Light" },
     Value = "Dark"
 })
+
+-- Modelo de amplificador Monitor Audio con el que se está diseñando. Permite
+-- previsualizar en el lienzo de Q-SYS Designer el número de zonas/canales
+-- del modelo elegido, antes de desplegar el plugin y conectarlo a un
+-- amplificador real (ver el uso de esta propiedad en layout.lua).
+-- Al conectar con el amplificador real, Device.ApplyResponse detecta el
+-- modelo que el propio equipo reporta y llama a Device.Set(), que vuelve a
+-- reconstruir las zonas con los datos reales — esa detección en vivo tiene
+-- prioridad sobre esta selección de diseño.
+local modelChoices = {}
+for _, model in ipairs(tblModels) do
+    table.insert(modelChoices, model.Name)
+end
+
+table.insert(props, {
+    Name = "Model",
+    Type = "enum",
+    Choices = modelChoices,
+    Value = modelChoices[1]
+})

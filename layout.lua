@@ -33,6 +33,22 @@ if props["UITheme"] then
 end
 local descriptorColor = uiTheme == "Dark" and warmGrey or { 51, 51, 51 }
 
+-- Modelo seleccionado en la propiedad "Model" (ver properties.lua). Se usa
+-- para previsualizar en el diseño cuántas zonas tendrá el amplificador antes
+-- de conectarlo; es una cota superior (cada salida como zona mono), ya que
+-- el agrupamiento real en zonas estéreo depende de la entrada seleccionada
+-- en cada canal, algo que solo se conoce en tiempo de ejecución.
+local selectedModel = nil
+if props["Model"] then
+	for _, model in ipairs(tblModels) do
+		if model.Name == props["Model"].Value then
+			selectedModel = model
+			break
+		end
+	end
+end
+local designZoneCount = selectedModel and selectedModel.Capabilities.Outputs or 12
+
 if pageName == "Setup" then
 	graphics["setupBrand"] = {
 		Type = "Text",
@@ -176,6 +192,29 @@ if pageName == "Setup" then
 			Size = isDescription and { 390, 48 } or { 220, 24 }
 		}
 	end
+
+	graphics["setupModelPreviewBox"] = {
+		Type = "GroupBox",
+		Text = "Design-time model preview",
+		Position = { 12, 450 },
+		Size = { 558, 64 },
+		StrokeColor = warmGrey,
+		StrokeWidth = 1,
+		CornerRadius = 8
+	}
+	graphics["setupModelPreviewText"] = {
+		Type = "Text",
+		Text = selectedModel
+			and (selectedModel.Name .. " — up to " .. selectedModel.Capabilities.Outputs ..
+				" channel(s). " .. selectedModel.Description ..
+				" Overridden automatically once the real amplifier connects and reports its own model.")
+			or "Select a Model property to preview its channel count here.",
+		Color = descriptorColor,
+		FontSize = 11,
+		WordWrap = true,
+		Position = { 24, 468 },
+		Size = { 534, 40 }
+	}
 else
 graphics["audioBrand"] = {
 	Type = "Text",
@@ -223,6 +262,13 @@ graphics["audioBrand"] = {
 		local x = 28 + (index - 1) * 75
 		local y = 112
 		local suffix = " " .. index
+		-- Además de ocultarse/mostrarse en tiempo de ejecución según el
+		-- amplificador realmente conectado (ver UI.EnableAudioControls en
+		-- src/ui/ui.lua), aquí se ocultan ya en el propio diseño las zonas
+		-- que excedan el número de canales del modelo elegido en la
+		-- propiedad "Model", para previsualizar el layout sin necesidad de
+		-- desplegar el plugin.
+		local isBeyondModel = index > designZoneCount
 		-- Nota: la etiqueta "Zona X" ya no se dibuja como gráfico estático aquí
 		-- (duplicaba a layout["txtLabels"], y al ser un gráfico de diseño no
 		-- puede ocultarse en tiempo de ejecución, por lo que "Zona C".."Zona L"
@@ -232,6 +278,7 @@ graphics["audioBrand"] = {
 		layout["txtLabels" .. suffix] = {
 			PrettyName = "Audio~Zone " .. index .. "~Label",
 			Style = "Text",
+			IsInvisible = isBeyondModel,
 			Position = { x, y },
 			Size = { 68, 22 }
 		}
@@ -241,12 +288,14 @@ graphics["audioBrand"] = {
 			ButtonStyle = "Trigger",
 			Legend = "VOL+",
 			Color = heritageGreen,
+			IsInvisible = isBeyondModel,
 			Position = { x, y + 26 },
 			Size = { 68, 42 }
 		}
 		layout["listInputs" .. suffix] = {
 			PrettyName = "Audio~Zone " .. index .. "~Input",
 			Style = "ComboBox",
+			IsInvisible = isBeyondModel,
 			Position = { x, y + 76 },
 			Size = { 68, 28 }
 		}
@@ -254,6 +303,7 @@ graphics["audioBrand"] = {
 			PrettyName = "Audio~Zone " .. index .. "~Gain",
 			Style = "Fader",
 			Color = beige,
+			IsInvisible = isBeyondModel,
 			Position = { x + 14, y + 116 },
 			Size = { 40, 190 }
 		}
@@ -263,6 +313,7 @@ graphics["audioBrand"] = {
 			ButtonStyle = "Trigger",
 			Legend = "VOL-",
 			Color = heritageGreen,
+			IsInvisible = isBeyondModel,
 			Position = { x, y + 318 },
 			Size = { 68, 42 }
 		}
@@ -272,6 +323,7 @@ graphics["audioBrand"] = {
 			ButtonStyle = "Toggle",
 			Legend = "MUTE",
 			Color = maAlertRed,
+			IsInvisible = isBeyondModel,
 			Position = { x, y + 366 },
 			Size = { 68, 42 }
 		}

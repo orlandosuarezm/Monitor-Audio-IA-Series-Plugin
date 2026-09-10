@@ -6,6 +6,7 @@
 
 function funcInit()
     Device.Init()
+    Device.ApplyPropertyModel()
     UI.Init()
     UI.UpdateSetup()
     UI.UpdateDevice()

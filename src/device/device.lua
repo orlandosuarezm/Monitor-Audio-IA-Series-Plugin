@@ -47,6 +47,24 @@ function Device.Set(argIndex)
 	return true
 end
 
+-- Preselecciona el modelo indicado en la propiedad de diseño "Model" (ver
+-- properties.lua) antes de que haya una conexión real, para que las zonas
+-- de la página Audio ya reflejen su número de canales al arrancar el
+-- plugin. En cuanto el amplificador real responde, Device.ApplyResponse
+-- detecta su modelo verdadero y vuelve a llamar a Device.Set(), que
+-- sobrescribe esta preselección con los datos reales del equipo.
+function Device.ApplyPropertyModel()
+	local propertyValue = Properties and Properties["Model"] and Properties["Model"].Value
+	if not propertyValue then return false end
+	for index, model in ipairs(tblModels) do
+		if model.Name == propertyValue then
+			return Device.Set(index)
+		end
+	end
+	Logger.Error(tblDebug.Source.Setup, "Unknown Model property value: " .. tostring(propertyValue))
+	return false
+end
+
 function Device.ClearInformation()
 	Device.Information.ID = nil
 	Device.Information.Model = ""

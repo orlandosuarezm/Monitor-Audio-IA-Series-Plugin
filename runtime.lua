@@ -1,5 +1,7 @@
 --[[ #include "src/config/constants.lua" ]]
---[[ #include "src/config/models.lua" ]]
+-- src/config/models.lua is included unconditionally near the top of plugin.lua
+-- (needed by GetProperties/GetControlLayout at design time too), so it is not
+-- re-included here.
 --[[ #include "src/config/inputs.lua" ]]
 --[[ #include "src/core/logger.lua" ]]
 --[[ #include "src/core/protocol.lua" ]]

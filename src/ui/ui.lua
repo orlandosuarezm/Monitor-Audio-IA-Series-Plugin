@@ -56,7 +56,13 @@ function UI.UpdateDevice()
 	UI.EnableInformation(connected)
 	for name, control in pairs(UI.Information) do control.String = connected and (Device.Information[name] or "") or "" end
 	UI.UpdateZones()
-	UI.EnableAudioControls(connected, Device.Setup.Power, Device.GetZoneCount())
+	-- Las zonas se muestran en cuanto se conoce un número de canales, ya sea
+	-- por la propiedad "Model" preseleccionada en el diseño (Device.ApplyPropertyModel,
+	-- ver main.lua) o porque el amplificador real ya respondió y reportó su
+	-- propio modelo (Device.ApplyResponse). Los controles siguen deshabilitados
+	-- mientras Device.Setup.Power sea false, que solo pasa a true con datos
+	-- reales del amplificador.
+	UI.EnableAudioControls(Device.GetZoneCount() > 0, Device.Setup.Power, Device.GetZoneCount())
 	UI.Setup.Power.IsDisabled, UI.Setup.Identify.IsDisabled = not connected, not connected
 	UI.Setup.Power.Boolean = Device.Setup.Power
 end

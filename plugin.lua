@@ -2,9 +2,10 @@
 -- The build script expands these include directives into the .qplug file.
 
 --[[ #include "info.lua" ]]
+--[[ #include "src/config/models.lua" ]]
 
 function GetColor(props)
-    return { 88, 98, 80 }
+    return { 240, 90, 40 }
 end
 
 function GetPrettyName(props)
