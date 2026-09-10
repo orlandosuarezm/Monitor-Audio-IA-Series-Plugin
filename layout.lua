@@ -1,10 +1,24 @@
 local pageName = "Setup"
-local charcoal = { 31, 31, 32 }
-local black = { 29, 31, 30 }
-local warmGrey = { 211, 209, 199 }
-local beige = { 227, 226, 221 }
-local heritageGreen = { 88, 98, 80 }
-local gold = { 157, 127, 94 }
+
+-- Identidad visual de Monitor Audio, tomada de los manuales oficiales en
+-- docs/ (Cinergy Setup with Installation Amplifiers 2G, MA_CI-Amps_Manuals_ES,
+-- MA_Installation Amplifiers_QSG): impresión minimalista en blanco y negro,
+-- con un único acento naranja reservado para el logotipo, los LEDs del panel
+-- frontal y los controles interactivos.
+local maBlack = { 17, 17, 17 } -- lienzo/fondo casi negro, como el chasis y las cabeceras de los manuales
+local maPanel = { 30, 30, 30 } -- relleno de paneles/GroupBox sobre el lienzo oscuro
+local maWhite = { 255, 255, 255 } -- texto principal y cabeceras de sección (blanco sobre negro, como en los manuales)
+local maGrey = { 170, 170, 170 } -- texto secundario/descriptor y bordes sutiles
+local maOrange = { 240, 90, 40 } -- naranja de marca, muestreado del logotipo/LEDs del panel frontal en docs/MA_CI-Amps_Manuals_ES.pdf
+local maCopper = { 196, 102, 66 } -- acento secundario atenuado, para acciones no primarias (Identify)
+local maAlertRed = { 196, 58, 58 } -- estado Mute/advertencia, diferenciado del naranja de marca
+
+-- Alias para minimizar el diff con el resto del archivo
+local charcoal = maPanel
+local warmGrey = maGrey
+local beige = maWhite
+local heritageGreen = maOrange
+local gold = maCopper
 
 if props["page_index"] then
 	local pageNames = { "Setup", "Audio" }
@@ -257,7 +271,7 @@ graphics["audioBrand"] = {
 			Style = "Button",
 			ButtonStyle = "Toggle",
 			Legend = "MUTE",
-			Color = { 204, 94, 61 },
+			Color = maAlertRed,
 			Position = { x, y + 366 },
 			Size = { 68, 42 }
 		}
