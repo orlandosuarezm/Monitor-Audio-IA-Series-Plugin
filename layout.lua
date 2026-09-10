@@ -11,6 +11,14 @@ if props["page_index"] then
 	pageName = pageNames[props["page_index"].Value] or pageName
 end
 
+-- Color de las etiquetas descriptoras: claro sobre lienzo oscuro, oscuro sobre
+-- lienzo claro. Ver la propiedad UITheme en properties.lua.
+local uiTheme = "Dark"
+if props["UITheme"] then
+	uiTheme = props["UITheme"].Value or uiTheme
+end
+local descriptorColor = uiTheme == "Dark" and warmGrey or { 51, 51, 51 }
+
 if pageName == "Setup" then
 	graphics["setupBrand"] = {
 		Type = "Text",
@@ -52,7 +60,7 @@ if pageName == "Setup" then
 	graphics["setupIpLabel"] = {
 		Type = "Text",
 		Text = "Amplifier IP address",
-		Color = warmGrey,
+		Color = descriptorColor,
 		FontSize = 12,
 		Position = { 24, 72 },
 		Size = { 120, 18 }
@@ -60,7 +68,7 @@ if pageName == "Setup" then
 	graphics["setupPortLabel"] = {
 		Type = "Text",
 		Text = "TCP port",
-		Color = warmGrey,
+		Color = descriptorColor,
 		FontSize = 12,
 		Position = { 220, 72 },
 		Size = { 56, 18 }
@@ -88,7 +96,7 @@ if pageName == "Setup" then
 	graphics["setupConnectedLabel"] = {
 		Type = "Text",
 		Text = "Connection status",
-		Color = warmGrey,
+		Color = descriptorColor,
 		FontSize = 12,
 		Position = { 356, 76 },
 		Size = { 80, 16 }
@@ -116,19 +124,19 @@ if pageName == "Setup" then
 		ButtonStyle = "Trigger",
 		Legend = "Test Connection",
 		Color = heritageGreen,
-		Position = { 350, 128 },
+		Position = { 350, 114 },
 		Size = { 130, 28 }
 	}
 	layout["txtDeviceId"] = {
 		PrettyName = "Setup~Amplifier information~Device ID",
 		Style = "Text",
 		Position = { 120, 210 },
-		Size = { 390, 24 }
+		Size = { 220, 24 }
 	}
 	graphics["setupDeviceIdLabel"] = {
 		Type = "Text",
 		Text = "Device identifier",
-		Color = warmGrey,
+		Color = descriptorColor,
 		FontSize = 12,
 		Position = { 24, 210 },
 		Size = { 72, 24 }
@@ -137,19 +145,21 @@ if pageName == "Setup" then
 	local infoNames = { "Amplifier model", "Serial number", "MAC address", "Description" }
 	for index, name in ipairs(infoNames) do
 		local y = 248 + (index - 1) * 42
+		local isDescription = index == 4
 		graphics["setupInfoLabel" .. index] = {
 			Type = "Text",
 			Text = name,
-			Color = warmGrey,
+			Color = descriptorColor,
 			FontSize = 12,
 			Position = { 24, y },
-			Size = { 90, index == 4 and 48 or 24 }
+			Size = { 90, isDescription and 48 or 24 }
 		}
 		layout["txtInformation " .. index] = {
 			PrettyName = "Setup~Device Information~" .. name,
 			Style = "Text",
+			WordWrap = isDescription,
 			Position = { 120, y },
-			Size = { 390, index == 4 and 48 or 24 }
+			Size = isDescription and { 390, 48 } or { 220, 24 }
 		}
 	end
 else
@@ -193,21 +203,18 @@ graphics["audioBrand"] = {
 		StrokeWidth = 1,
 		CornerRadius = 8,
 		Position = { 12, 86 },
-		Size = { 920, 430 }
+		Size = { 920, 460 }
 	}
 	for index = 1, 12 do
 		local x = 28 + (index - 1) * 75
 		local y = 112
 		local suffix = " " .. index
-		graphics["zoneLabel" .. index] = {
-			Type = "Text",
-			Text = "Zone " .. string.char(64 + index),
-			Color = beige,
-			FontSize = 10,
-			HTextAlign = "Center",
-			Position = { x, y },
-			Size = { 68, 22 }
-		}
+		-- Nota: la etiqueta "Zona X" ya no se dibuja como gráfico estático aquí
+		-- (duplicaba a layout["txtLabels"], y al ser un gráfico de diseño no
+		-- puede ocultarse en tiempo de ejecución, por lo que "Zona C".."Zona L"
+		-- quedaban visibles siempre aunque el amplificador solo tuviera 2
+		-- canales). El texto de la zona lo muestra únicamente el control
+		-- dinámico txtLabels, que sí se oculta/muestra según el modelo conectado.
 		layout["txtLabels" .. suffix] = {
 			PrettyName = "Audio~Zone " .. index .. "~Label",
 			Style = "Text",
@@ -225,7 +232,7 @@ graphics["audioBrand"] = {
 		}
 		layout["listInputs" .. suffix] = {
 			PrettyName = "Audio~Zone " .. index .. "~Input",
-			Style = "Text",
+			Style = "ComboBox",
 			Position = { x, y + 76 },
 			Size = { 68, 28 }
 		}
@@ -233,8 +240,8 @@ graphics["audioBrand"] = {
 			PrettyName = "Audio~Zone " .. index .. "~Gain",
 			Style = "Fader",
 			Color = beige,
-			Position = { x + 22, y + 116 },
-			Size = { 24, 190 }
+			Position = { x + 14, y + 116 },
+			Size = { 40, 190 }
 		}
 		layout["btnVolDown" .. suffix] = {
 			PrettyName = "Audio~Zone " .. index .. "~Volume Down",

@@ -52,6 +52,7 @@ function UI.UpdateDevice()
 	local connected = Device.Setup.Connected
 	UI.Connected = connected
 	UI.DeviceID.String = connected and tostring(Device.Information.ID or "") or ""
+	UI.DeviceID.IsDisabled = not connected
 	UI.EnableInformation(connected)
 	for name, control in pairs(UI.Information) do control.String = connected and (Device.Information[name] or "") or "" end
 	UI.UpdateZones()
@@ -72,7 +73,32 @@ function UI.UpdateSetup()
 end
 
 function UI.Init()
-	UI.Setup.IP.String = Device.Setup.IP
+	-- Los controles txtIpAddress/txtPort son UserPin con PinStyle "Output",
+	-- así que Q-SYS conserva su valor String entre cargas del diseño. Antes,
+	-- Device.Init() los reiniciaba a "" y esta función copiaba ese valor
+	-- vacío de vuelta al control, borrando la última IP/puerto buenos en
+	-- cada carga. Ahora se lee primero lo que el control ya trae guardado.
+	local savedIP = UI.Setup.IP.String
+	local savedPort = tonumber(UI.Setup.Port.String)
+
+	if funcValidateIP(savedIP) then
+		Device.Setup.IP = savedIP
+	else
+		UI.Setup.IP.String = ""
+	end
+
+	if savedPort and savedPort > 0 and savedPort <= 65535 then
+		Device.Setup.Port = savedPort
+		UI.Setup.Port.String = tostring(savedPort)
+	end
+
+	UI.DeviceID.IsDisabled = true
 	UI.UpdateSetup()
 	UI.UpdateZones()
+
+	-- Con IP y puerto ya válidos no hace falta tocar los campos para
+	-- disparar el EventHandler: se intenta conectar directamente.
+	if funcValidateIP(Device.Setup.IP) and Device.Setup.Port > 0 then
+		UI.TryConnect()
+	end
 end
