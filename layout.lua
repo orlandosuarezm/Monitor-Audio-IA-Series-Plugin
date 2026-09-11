@@ -76,7 +76,7 @@ if pageName == "Setup" then
 	}
 	graphics["setupInformationBox"] = {
 		Type = "GroupBox",
-		Text = "Amplifier information (read-only)",
+		Text = "Amplifier information (read-only, populates when running)",
 		Position = { 12, 164 },
 		Size = { 558, 278 },
 		StrokeColor = warmGrey,
@@ -198,6 +198,35 @@ if pageName == "Setup" then
 			Size = isDescription and { 390, 48 } or { 220, 24 }
 		}
 	end
+
+	-- A diferencia de los campos de "Amplifier information" (que son Controls
+	-- y solo se rellenan cuando el diseño está realmente corriendo -- Run en
+	-- Designer o desplegado a un Core -- porque src/ui/ui.lua todavía no se
+	-- ha ejecutado), este bloque es puro gráfico calculado por layout.lua a
+	-- partir de la propiedad "Model", así que se ve de inmediato aunque el
+	-- componente esté inactivo, solo con cambiar la propiedad.
+	graphics["setupModelPreviewBox"] = {
+		Type = "GroupBox",
+		Text = "Selected model (design-time preview, from the \"Model\" property)",
+		Position = { 12, 450 },
+		Size = { 558, 64 },
+		StrokeColor = warmGrey,
+		StrokeWidth = 1,
+		CornerRadius = 8
+	}
+	graphics["setupModelPreviewText"] = {
+		Type = "Text",
+		Text = selectedModel
+			and (selectedModel.Name .. " — up to " .. selectedModel.Capabilities.Outputs ..
+				" channel(s) will show on the Audio page. " .. selectedModel.Description ..
+				" Run the design and connect a real amplifier to override this with live data.")
+			or "Select a Model property to preview its channel count here.",
+		Color = descriptorColor,
+		FontSize = 11,
+		WordWrap = true,
+		Position = { 24, 468 },
+		Size = { 534, 40 }
+	}
 else
 graphics["audioBrand"] = {
 	Type = "Text",
