@@ -17,10 +17,6 @@ for _, inputID in ipairs(inputIDs) do
 end
 for i = 1, kMaxZones do UI.Zones[i].Inputs.Choices = inputChoices end
 
-function UI.EnableInformation(enabled)
-	for _, control in ipairs(Controls.txtInformation) do control.IsDisabled = not enabled end
-end
-
 function UI.EnableAudioControls(visible, powerOn, zoneCount)
 	for i = 1, kMaxZones do
 		local zone = UI.Zones[i]
@@ -48,13 +44,31 @@ function UI.UpdateZones()
 	end
 end
 
+-- Campos de "Amplifier information" que se pueden conocer sin conexión
+-- real: Model y Description vienen de la propiedad "Model" (o, una vez
+-- conectado, del propio amplificador). Serial y MAC solo existen si el
+-- amplificador respondió de verdad, así que permanecen en blanco hasta
+-- entonces (ver UI.UpdateDevice).
+local knownWithoutConnection = { Model = true, Description = true, Serial = false, MAC = false }
+
 function UI.UpdateDevice()
 	local connected = Device.Setup.Connected
 	UI.Connected = connected
-	UI.DeviceID.String = connected and tostring(Device.Information.ID or "") or ""
-	UI.DeviceID.IsDisabled = not connected
-	UI.EnableInformation(connected)
-	for name, control in pairs(UI.Information) do control.String = connected and (Device.Information[name] or "") or "" end
+
+	-- El identificador de dispositivo (Device.Information.ID) es el ID del
+	-- modelo en tblModels: se conoce en cuanto hay un modelo seleccionado,
+	-- ya sea por la propiedad "Model" preseleccionada en el diseño
+	-- (Device.ApplyPropertyModel, ver main.lua) o por los datos reales que
+	-- reporta el propio amplificador al conectar (Device.ApplyResponse).
+	UI.DeviceID.String = tostring(Device.Information.ID or "")
+	UI.DeviceID.IsDisabled = Device.Information.ID == nil
+
+	for name, control in pairs(UI.Information) do
+		local isKnown = knownWithoutConnection[name] or connected
+		control.String = isKnown and (Device.Information[name] or "") or ""
+		control.IsDisabled = not isKnown
+	end
+
 	UI.UpdateZones()
 	-- Las zonas se muestran en cuanto se conoce un número de canales, ya sea
 	-- por la propiedad "Model" preseleccionada en el diseño (Device.ApplyPropertyModel,

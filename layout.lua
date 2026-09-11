@@ -32,6 +32,10 @@ if props["UITheme"] then
 	uiTheme = props["UITheme"].Value or uiTheme
 end
 local descriptorColor = uiTheme == "Dark" and warmGrey or { 51, 51, 51 }
+-- Antes, la marca y las cabeceras de sección ("ENTER THE AMPLIFIER..." etc.)
+-- usaban un color de texto fijo (blanco), ilegible en modo Light sobre un
+-- lienzo claro. Ahora dependen también de UITheme, igual que descriptorColor.
+local brandColor = uiTheme == "Dark" and maWhite or { 20, 20, 20 }
 
 -- Modelo seleccionado en la propiedad "Model" (ver properties.lua). Se usa
 -- para previsualizar en el diseño cuántas zonas tendrá el amplificador antes
@@ -53,7 +57,7 @@ if pageName == "Setup" then
 	graphics["setupBrand"] = {
 		Type = "Text",
 		Text = "MONITOR AUDIO",
-		Color = warmGrey,
+		Color = brandColor,
 		Font = "Roboto",
 		FontStyle = "Bold",
 		FontSize = 16,
@@ -82,7 +86,7 @@ if pageName == "Setup" then
 	graphics["setupConnectionHeader"] = {
 		Type = "Text",
 		Text = "ENTER THE AMPLIFIER NETWORK SETTINGS",
-		Color = beige,
+		Color = brandColor,
 		FontSize = 14,
 		Position = { 24, 44 },
 		Size = { 260, 20 }
@@ -134,7 +138,7 @@ if pageName == "Setup" then
 	graphics["setupInformationHeader"] = {
 		Type = "Text",
 		Text = "INFORMATION RECEIVED FROM AMPLIFIER",
-		Color = beige,
+		Color = brandColor,
 		FontSize = 14,
 		Position = { 24, 178 },
 		Size = { 220, 20 }
@@ -160,6 +164,7 @@ if pageName == "Setup" then
 	layout["txtDeviceId"] = {
 		PrettyName = "Setup~Amplifier information~Device ID",
 		Style = "Text",
+		Color = brandColor,
 		Position = { 120, 210 },
 		Size = { 220, 24 }
 	}
@@ -187,34 +192,12 @@ if pageName == "Setup" then
 		layout["txtInformation " .. index] = {
 			PrettyName = "Setup~Device Information~" .. name,
 			Style = "Text",
+			Color = brandColor,
 			WordWrap = isDescription,
 			Position = { 120, y },
 			Size = isDescription and { 390, 48 } or { 220, 24 }
 		}
 	end
-
-	graphics["setupModelPreviewBox"] = {
-		Type = "GroupBox",
-		Text = "Design-time model preview",
-		Position = { 12, 450 },
-		Size = { 558, 64 },
-		StrokeColor = warmGrey,
-		StrokeWidth = 1,
-		CornerRadius = 8
-	}
-	graphics["setupModelPreviewText"] = {
-		Type = "Text",
-		Text = selectedModel
-			and (selectedModel.Name .. " — up to " .. selectedModel.Capabilities.Outputs ..
-				" channel(s). " .. selectedModel.Description ..
-				" Overridden automatically once the real amplifier connects and reports its own model.")
-			or "Select a Model property to preview its channel count here.",
-		Color = descriptorColor,
-		FontSize = 11,
-		WordWrap = true,
-		Position = { 24, 468 },
-		Size = { 534, 40 }
-	}
 else
 graphics["audioBrand"] = {
 	Type = "Text",
