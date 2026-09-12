@@ -17,10 +17,10 @@ for _, inputID in ipairs(inputIDs) do
 end
 for i = 1, kMaxZones do UI.Zones[i].Inputs.Choices = inputChoices end
 
-function UI.EnableAudioControls(visible, powerOn, zoneCount)
+function UI.EnableAudioControls(visible, powerOn)
 	for i = 1, kMaxZones do
 		local zone = UI.Zones[i]
-		local isVisible = visible and i <= (tonumber(zoneCount) or 0)
+		local isVisible = visible and Device.Zones[i] ~= nil and not Device.IsZoneHiddenByStereoPair(i)
 		zone.Label.IsInvisible, zone.Inputs.IsInvisible = not isVisible, not isVisible
 		zone.VolUp.IsInvisible, zone.VolDown.IsInvisible = not isVisible, not isVisible
 		zone.Fader.IsInvisible, zone.Mute.IsInvisible = not isVisible, not isVisible
@@ -34,7 +34,7 @@ function UI.UpdateZones()
 	for i = 1, kMaxZones do
 		local uiZone, deviceZone = UI.Zones[i], Device.Zones[i]
 		if deviceZone then
-			uiZone.Label.String = deviceZone.Label
+			uiZone.Label.String = Device.GetZoneDisplayLabel(deviceZone)
 			uiZone.Inputs.String = Device.Inputs[deviceZone.InputID].Description
 			uiZone.Fader.Value, uiZone.Mute.Boolean = deviceZone.Gain, deviceZone.Mute
 		else
@@ -68,7 +68,7 @@ function UI.UpdateDevice()
 	-- Las zonas de la página Audio sí se muestran en cuanto se conoce un
 	-- número de canales (por la propiedad "Model" o por el amplificador
 	-- real), independientemente de esto: ver Device.GetZoneCount() abajo.
-	UI.EnableAudioControls(Device.GetZoneCount() > 0, Device.Setup.Power, Device.GetZoneCount())
+	UI.EnableAudioControls(Device.GetZoneCount() > 0, Device.Setup.Power)
 	UI.Setup.Power.IsDisabled, UI.Setup.Identify.IsDisabled = not connected, not connected
 	UI.Setup.Power.Boolean = Device.Setup.Power
 end

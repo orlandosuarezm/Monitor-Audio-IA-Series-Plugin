@@ -6,6 +6,12 @@ Device = {
 	-- real.
 	Information = { ID = nil, Model = "", Serial = "", MAC = "", Description = "" },
 	Setup = { IP = "", Port = 0, Connected = false, Power = false },
+	-- SystemStatus/InputStatus guardan feedback informativo (metering,
+	-- estado de entradas) que hoy no tiene un control de UI propio: se
+	-- capturan igualmente para no perder datos, listos para cablearse a
+	-- una UI de medidores más adelante.
+	SystemStatus = { SignalIn = "", SignalOut = "" },
+	InputStatus = {},
 	Inputs = {}, Zones = {}, Channels = {}
 }
 
@@ -20,6 +26,8 @@ end
 function Device.Init()
 	Device.Information = { ID = nil, Model = "", Serial = "", MAC = "", Description = "" }
 	Device.Setup = { IP = "", Port = 0, Connected = false, Power = false }
+	Device.SystemStatus = { SignalIn = "", SignalOut = "" }
+	Device.InputStatus = {}
 	Device.Inputs = tblInputs
 	Device.Zones = {}
 	Device.Channels = {}
@@ -94,32 +102,53 @@ function Device.ApplyResponse(line)
 
 	local path, value = text:match("^%+?(%S+)%s+(.-)%s*$")
 	if not path then return end
+	value = value:gsub('^"(.*)"$', "%1") -- SIGNAL_IN/SIGNAL_OUT llegan entre comillas
 
 	if path == "SYSTEM.STATUS.STATE" then
 		Device.Setup.Power = value:upper() == "ON"
 		return
+	elseif path == "SYSTEM.STATUS.SIGNAL_IN" then
+		Device.SystemStatus.SignalIn = value
+		return
+	elseif path == "SYSTEM.STATUS.SIGNAL_OUT" then
+		Device.SystemStatus.SignalOut = value
+		return
 	end
 
-	local zoneLetter, property = path:match("^ZONE%-(%a+)%.([%w_]+)$")
-	if zoneLetter and property then
+	local zoneLetter, zoneProperty = path:match("^ZONE%-(%a+)%.(.+)$")
+	if zoneLetter then
 		local zoneIndex = Device.EnsureZoneForLetter(zoneLetter)
 		local zone = Device.Zones[zoneIndex]
-		if property == "GAIN" then
+		if zoneProperty == "GAIN" then
 			zone.Gain = tonumber(value) or zone.Gain
-		elseif property == "MUTE" then
+		elseif zoneProperty == "MUTE" then
 			zone.Mute = value == "1"
-		elseif property == "PRIMARY_SRC" then
+		elseif zoneProperty == "PRIMARY_SRC" then
 			zone.InputID = tonumber(value) or zone.InputID
-		elseif property == "STEREO" then
+		elseif zoneProperty == "STEREO" then
 			zone.Stereo = value == "1"
+		elseif zoneProperty == "DYN.SIGNAL" then
+			-- Metering en vivo; todavía sin control de UI propio (ver
+			-- docs/MonitorAudio_IA_Series_Control_LAN.docx, sección 5).
+			zone.SignalLevel = tonumber(value)
 		end
 		return
 	end
 
-	-- +IN-<n>.STEREO, +IN-<n>.DYN.*, +SYSTEM.STATUS.SIGNAL_* y +ZONE-<z>.DYN.*
-	-- son informativos (metering, config de entrada) y todavía no tienen un
-	-- control de UI correspondiente; se ignoran por ahora sin marcarlos como
-	-- error.
+	local inputID, inputProperty = path:match("^IN%-(%d+)%.(.+)$")
+	if inputID then
+		inputID = tonumber(inputID)
+		Device.InputStatus[inputID] = Device.InputStatus[inputID] or {}
+		local status = Device.InputStatus[inputID]
+		if inputProperty == "STEREO" then
+			status.Stereo = value == "1"
+		elseif inputProperty == "DYN.SIGNAL" then
+			status.SignalLevel = tonumber(value)
+		elseif inputProperty == "DYN.CLIP" then
+			status.Clip = value == "1"
+		end
+		return
+	end
 end
 
 -- Solo para Test Connection (simulación): el protocolo real no expone

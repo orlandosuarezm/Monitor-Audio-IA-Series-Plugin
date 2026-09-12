@@ -49,3 +49,43 @@ function Device.EnsureZoneForLetter(zoneLetter)
 	Device.Channels[index] = Device.Channels[index] or { ZoneLetter = zoneLetter, InputID = 100 }
 	return index
 end
+
+-- Pareja de zonas que el propio amplificador puede agrupar en modo
+-- estéreo (consultable con GET ZONE-<zona>.STEREO, no configurable por
+-- LAN): cuando la primaria (A o C) reporta STEREO = 1, la secundaria (B o
+-- D) queda fusionada en ella y no debe controlarse por separado -- ver
+-- docs/MonitorAudio_IA_Series_Control_LAN.docx, sección 4.3.
+local kStereoPairs = { A = "B", C = "D" }
+
+function Device.GetZoneByLetter(zoneLetter)
+	for _, zone in ipairs(Device.Zones) do
+		if zone.ZoneLetter == zoneLetter then return zone end
+	end
+	return nil
+end
+
+-- true si esta zona es la mitad "secundaria" (B o D) de un par que el
+-- amplificador tiene configurado en modo estéreo, y por tanto debe
+-- ocultarse en la UI porque la zona primaria (A o C) ya la controla.
+function Device.IsZoneHiddenByStereoPair(zoneIndex)
+	local zone = Device.Zones[zoneIndex]
+	if not zone then return false end
+	for primaryLetter, secondaryLetter in pairs(kStereoPairs) do
+		if zone.ZoneLetter == secondaryLetter then
+			local primaryZone = Device.GetZoneByLetter(primaryLetter)
+			return primaryZone ~= nil and primaryZone.Stereo == true
+		end
+	end
+	return false
+end
+
+-- Etiqueta a mostrar en la UI: si esta zona es la primaria de un par en
+-- modo estéreo, refleja que controla ambas letras (p. ej. "Zone A/B
+-- (Stereo)") ya que la secundaria queda oculta por Device.IsZoneHiddenByStereoPair.
+function Device.GetZoneDisplayLabel(zone)
+	local secondaryLetter = zone.Stereo and kStereoPairs[zone.ZoneLetter]
+	if secondaryLetter then
+		return "Zone " .. zone.ZoneLetter .. "/" .. secondaryLetter .. " (Stereo)"
+	end
+	return zone.Label
+end
