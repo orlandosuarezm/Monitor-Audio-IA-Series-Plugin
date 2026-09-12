@@ -14,6 +14,13 @@ function UI.TryConnect()
 	TCP.Connect(Device.Setup.IP, Device.Setup.Port)
 end
 
+-- Antes, cada edición de IP o puerto llamaba a UI.TryConnect() de
+-- inmediato: limpiaba los campos de información e intentaba conectar por
+-- TCP en cada cambio, incluso a media corrección de un error de tecleo.
+-- Ahora solo se valida y se guarda el valor (persiste solo por ser
+-- controles UserPin, ver controls.lua); limpiar información y conectar
+-- solo ocurre al pulsar "Test Connection" (UI.SimulateConnection) o al
+-- cargar el diseño con una IP/puerto ya guardados (UI.Init).
 UI.Setup.IP.EventHandler = function()
 	local enteredIP = UI.Setup.IP.String
 	if funcValidateIP(enteredIP) then
@@ -23,14 +30,12 @@ UI.Setup.IP.EventHandler = function()
 		UI.Setup.IP.String = "Invalid IP"
 	end
 	UI.UpdateSetup()
-	UI.TryConnect()
 end
 
 UI.Setup.Port.EventHandler = function()
 	local port = tonumber(UI.Setup.Port.String)
 	Device.Setup.Port = port or 0
 	UI.UpdateSetup()
-	UI.TryConnect()
 end
 
 function UI.SimulateConnection()
