@@ -1,7 +1,15 @@
+-- Modelos y zonas de salida confirmados por ingeniería inversa de los
+-- drivers de control Crestron 1.0.1, Control4 v100 y RTI 1.0 (ver
+-- docs/MonitorAudio_IA_Series_Control_LAN.docx). Sustituye a una lista de
+-- modelos anterior que no correspondía a ningún producto real de Monitor
+-- Audio.
+local function zoneModel(id, name, description, zones)
+	return { ID = id, Name = name, Description = description, Capabilities = { Zones = zones, Outputs = #zones } }
+end
+
 tblModels = {
-    { ID = 1, Name = "IA150-2", IPControl = false, Capabilities = { Outputs = 2, StereoPairs = 1 }, Description = "2-channel installation amplifier, 150 W per channel at 4 Ohms, with volume level control, voltage trigger, and bridge mode." },
-    { ID = 2, Name = "IA60-12", IPControl = false, Capabilities = { Outputs = 12, StereoPairs = 6 }, Description = "12-channel (6 stereo pair) installation amplifier, 60 W per channel at 4 Ohms, configurable from 1 to 12 channels with bus routing and bridge mode." },
-    { ID = 3, Name = "IA200-2C", IPControl = true, Capabilities = { Outputs = 2, StereoPairs = 1 }, Description = "2-channel 'Connect' installation amplifier, 200 W per channel at 4 Ohms, with IP control, IR control, and DSP configuration via web portal." },
-    { ID = 4, Name = "IA150-8C", IPControl = true, Capabilities = { Outputs = 8, StereoPairs = 4 }, Description = "8-channel (4 stereo pair) 'Connect' installation amplifier, 150 W per channel at 4 Ohms, with IP control, IR control, and DSP configuration via web portal." },
-    { ID = 5, Name = "IA800-2C", IPControl = true, Capabilities = { Outputs = 2, StereoPairs = 1 }, Description = "2-channel 'Connect' installation amplifier, 800 W per channel at 4 Ohms, supports 70V line mode and bridge mode, with IP/IR control and DSP configuration." }
+	zoneModel(13, "IA60-4", "4-zone installation amplifier, 60W per channel", { "A", "B", "C", "D" }),
+	zoneModel(14, "IA125-4", "4-zone installation amplifier, 125W per channel", { "A", "B", "C", "D" }),
+	zoneModel(15, "IA800-2", "2-zone installation amplifier, 800W per channel (bridgeable)", { "A", "B" }),
+	zoneModel(16, "IA800-4", "4-zone installation amplifier, 800W per channel", { "A", "B", "C", "D" })
 }

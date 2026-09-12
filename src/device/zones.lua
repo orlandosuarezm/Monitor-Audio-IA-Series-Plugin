@@ -2,39 +2,50 @@ function Device.ClearZones()
 	for i = 1, kMaxZones do Device.Zones[i] = nil end
 end
 
-function Device.CreateMonoZone(zoneID, label, inputID, outputID)
-	Device.Zones[zoneID] = { ID = zoneID, Label = label, Type = "Mono", InputID = inputID, Gain = 0, Mute = false, Outputs = { outputID } }
-end
-
-function Device.CreateStereoZone(zoneID, label, inputID, output1, output2)
-	Device.Zones[zoneID] = { ID = zoneID, Label = label, Type = "Stereo", InputID = inputID, Gain = 0, Mute = false, Outputs = { output1, output2 } }
-end
-
+-- Cada Device.Channels[i] es una zona de salida real del amplificador
+-- (letra ZONE-A/B/C/D), no un canal que haya que emparejar en estéreo por
+-- software: el propio equipo decide si una pareja de zonas (A-B o C-D)
+-- está en modo estéreo, y eso se consulta con GET ZONE-<zona>.STEREO, no
+-- se configura desde aquí (ver docs/MonitorAudio_IA_Series_Control_LAN.docx,
+-- sección 4.3). Device.Zones se mantiene indexado numéricamente (1..N)
+-- para encajar con los controles de la UI (ver src/ui/ui.lua).
 function Device.RebuildZones()
 	Device.ClearZones()
-	local zoneIndex, channel = 1, 1
+	for i, channel in ipairs(Device.Channels) do
+		Device.Zones[i] = {
+			ID = i,
+			ZoneLetter = channel.ZoneLetter,
+			Label = "Zone " .. channel.ZoneLetter,
+			InputID = channel.InputID,
+			Gain = 0,
+			Mute = false,
+			Stereo = false
+		}
+	end
+end
 
-	while channel <= Device.Capabilities.MaxOutputs do
-		local ch1, ch2 = Device.Channels[channel], Device.Channels[channel + 1]
-		local input1 = ch1 and Device.Inputs[ch1.InputID]
-		local input2 = ch2 and Device.Inputs[ch2.InputID]
-		local stereoInputID = nil
-
-		if input1 and input1.Type == "Stereo" then
-			stereoInputID = ch1.InputID
-		elseif input2 and input2.Type == "Stereo" then
-			stereoInputID = ch2.InputID
-		end
-
-		if stereoInputID and ch2 then
-			Device.CreateStereoZone(zoneIndex, "Zone " .. string.char(64 + zoneIndex), stereoInputID, channel, channel + 1)
-			channel = channel + 2
-		else
-			Device.CreateMonoZone(zoneIndex, "Zone " .. string.char(64 + zoneIndex), ch1.InputID, channel)
-			channel = channel + 1
-		end
-		zoneIndex = zoneIndex + 1
+-- Busca la zona por su letra real (tal como la reporta el amplificador);
+-- si todavía no existe (por ejemplo, porque el modelo elegido en la
+-- propiedad de diseño tiene menos zonas de las que el equipo real resulta
+-- tener), la crea sobre la marcha. Así, el número de zonas visible en la
+-- página Audio se reconcilia automáticamente con el amplificador real en
+-- cuanto contesta, sin depender de un comando de "modelo" que el protocolo
+-- LAN no expone -- ver Device.ApplyResponse en device.lua.
+function Device.EnsureZoneForLetter(zoneLetter)
+	for i, zone in ipairs(Device.Zones) do
+		if zone.ZoneLetter == zoneLetter then return i end
 	end
 
-	Device.Capabilities.MaxZones = zoneIndex - 1
+	local index = #Device.Zones + 1
+	Device.Zones[index] = {
+		ID = index,
+		ZoneLetter = zoneLetter,
+		Label = "Zone " .. zoneLetter,
+		InputID = 100,
+		Gain = 0,
+		Mute = false,
+		Stereo = false
+	}
+	Device.Channels[index] = Device.Channels[index] or { ZoneLetter = zoneLetter, InputID = 100 }
+	return index
 end

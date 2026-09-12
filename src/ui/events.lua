@@ -39,10 +39,9 @@ function UI.SimulateConnection()
 	end
 
 	TCP.Disconnect()
-	local deviceID = 3
+	local deviceID = 2 -- IA125-4 (4 zonas), solo para tener algo representativo que mostrar en simulación
 	Device.Set(deviceID)
-	Device.Information.Serial = "MA12345678"
-	Device.Information.MAC = "00:11:22:33:44:55"
+	Device.SetSimulatedIdentity()
 	Device.Setup.Connected = true
 	Device.Setup.Power = false
 	UI.UpdateSetup()
@@ -61,10 +60,8 @@ for i = 1, kMaxZones do
 			if tblInputs[inputID].Description == selectedDescription then newInputID = inputID break end
 		end
 		if not newInputID then return end
-		Device.Channels[deviceZone.Outputs[1]].InputID = newInputID
-		Device.RebuildZones()
+		Device.SetZoneSource(zoneIndex, newInputID)
 		UI.UpdateZones()
-		UI.EnableAudioControls(UI.Connected, Device.Setup.Power, Device.GetZoneCount())
 	end
 
 	-- btnVolUp/btnVolDown ahora son ButtonType/ButtonStyle = "Momentary" (no

@@ -1,8 +1,12 @@
 Device = {
+	-- El protocolo LAN real (ver docs/MonitorAudio_IA_Series_Control_LAN.docx)
+	-- no expone un comando para consultar número de serie o MAC -- los
+	-- campos se conservan para la UI existente, pero solo los rellena
+	-- Device.SetSimulatedIdentity() en modo simulación, nunca una conexión
+	-- real.
 	Information = { ID = nil, Model = "", Serial = "", MAC = "", Description = "" },
 	Setup = { IP = "", Port = 0, Connected = false, Power = false },
-	Inputs = {}, Zones = {}, Channels = {}, Outputs = {},
-	Capabilities = { MaxInputs = 0, MaxZones = 0, MaxOutputs = 0, StereoPairs = 0 }
+	Inputs = {}, Zones = {}, Channels = {}
 }
 
 function Device.GetZoneCount()
@@ -19,10 +23,15 @@ function Device.Init()
 	Device.Inputs = tblInputs
 	Device.Zones = {}
 	Device.Channels = {}
-	Device.Outputs = {}
-	Device.Capabilities = { MaxInputs = 0, MaxZones = 0, MaxOutputs = 0, StereoPairs = 0 }
 end
 
+-- Configura el modelo elegido (índice en tblModels, no el ID real de
+-- producto): crea un canal por cada letra de zona del modelo
+-- (Capabilities.Zones) y reconstruye Device.Zones. Esta es la única fuente
+-- de la que se conoce el NOMBRE del modelo -- el protocolo LAN no permite
+-- consultarlo desde el propio equipo -- pero el NÚMERO de zonas real se
+-- reconcilia después con lo que el amplificador realmente reporte (ver
+-- Device.EnsureZoneForLetter en zones.lua, usado por Device.ApplyResponse).
 function Device.Set(argIndex)
 	local model = tblModels[argIndex]
 	if not model then
@@ -33,14 +42,10 @@ function Device.Set(argIndex)
 	Device.Information.ID = model.ID
 	Device.Information.Model = model.Name
 	Device.Information.Description = model.Description
-	Device.Capabilities.MaxOutputs = model.Capabilities.Outputs
-	Device.Capabilities.StereoPairs = model.Capabilities.StereoPairs
 	Device.Channels = {}
-	Device.Outputs = {}
 
-	for i = 1, model.Capabilities.Outputs do
-		Device.Channels[i] = { ID = i, InputID = 100 }
-		Device.Outputs[i] = { ID = i, Label = "Output " .. string.char(64 + i) }
+	for i, zoneLetter in ipairs(model.Capabilities.Zones) do
+		Device.Channels[i] = { ZoneLetter = zoneLetter, InputID = 100 }
 	end
 
 	Device.RebuildZones()
@@ -50,9 +55,9 @@ end
 -- Preselecciona el modelo indicado en la propiedad de diseño "Model" (ver
 -- properties.lua) antes de que haya una conexión real, para que las zonas
 -- de la página Audio ya reflejen su número de canales al arrancar el
--- plugin. En cuanto el amplificador real responde, Device.ApplyResponse
--- detecta su modelo verdadero y vuelve a llamar a Device.Set(), que
--- sobrescribe esta preselección con los datos reales del equipo.
+-- plugin. Al conectar con un amplificador real, cada línea de feedback de
+-- zona (+ZONE-<letra>...) reconcilia esto con las zonas que el propio
+-- equipo realmente reporta -- ver Device.ApplyResponse.
 function Device.ApplyPropertyModel()
 	local propertyValue = Properties and Properties["Model"] and Properties["Model"].Value
 	if not propertyValue then return false end
@@ -73,32 +78,56 @@ function Device.ClearInformation()
 	Device.Information.Description = ""
 end
 
-function Device.ApplyResponse(response)
-	local normalized = tostring(response or "")
-	local function assign(pattern, field)
-		local value = normalized:match(pattern)
-		if value and value ~= "" then
-			Device.Information[field] = value:gsub("^%s+", ""):gsub("%s+$", "")
-		end
+-- El equipo reporta feedback como líneas de texto independientes con el
+-- formato "+RUTA VALOR" (p. ej. "+ZONE-A.GAIN -20"), y errores como líneas
+-- que contienen "#" (ver docs/MonitorAudio_IA_Series_Control_LAN.docx,
+-- secciones 3 y 6). TCP.lua divide el buffer recibido por línea y llama a
+-- esta función una vez por cada una.
+function Device.ApplyResponse(line)
+	local text = tostring(line or "")
+	if text == "" then return end
+
+	if text:find("#") then
+		Logger.Error(tblDebug.Source.TCP, "Amplifier reported an error: " .. text)
+		return
 	end
 
-	assign("[Dd][Ee][Vv][Ii][Cc][Ee].*[Mm][Oo][Dd][Ee][Ll]%s*[:=]?%s*(.-)%s*$", "Model")
-	assign("[Mm][Oo][Dd][Ee][Ll]%s*[:=]?%s*(.-)%s*$", "Model")
-	assign("[Dd][Ee][Vv][Ii][Cc][Ee].*[Ss][Ee][Rr][Ii][Aa][Ll]%s*[:=]?%s*(.-)%s*$", "Serial")
-	assign("[Ss][Ee][Rr][Ii][Aa][Ll]%s*[Nn]?[Oo]?%s*[:=]?%s*(.-)%s*$", "Serial")
-	assign("[Dd][Ee][Vv][Ii][Cc][Ee].*[Mm][Aa][Cc]%s*[:=]?%s*(.-)%s*$", "MAC")
-	assign("[Mm][Aa][Cc]%s*[:=]?%s*(.-)%s*$", "MAC")
-	assign("[Dd][Ee][Vv][Ii][Cc][Ee].*[Dd][Ee][Ss][Cc][Rr][Ii][Pp][Tt][Ii][Oo][Nn]%s*[:=]?%s*(.-)%s*$", "Description")
-	assign("[Dd][Ee][Ss][Cc][Rr][Ii][Pp][Tt][Ii][Oo][Nn]%s*[:=]?%s*(.-)%s*$", "Description")
+	local path, value = text:match("^%+?(%S+)%s+(.-)%s*$")
+	if not path then return end
 
-	if Device.Information.Model ~= "" then
-		for index, model in ipairs(tblModels) do
-			if model.Name == Device.Information.Model then
-				Device.Set(index)
-				break
-			end
-		end
+	if path == "SYSTEM.STATUS.STATE" then
+		Device.Setup.Power = value:upper() == "ON"
+		return
 	end
+
+	local zoneLetter, property = path:match("^ZONE%-(%a+)%.([%w_]+)$")
+	if zoneLetter and property then
+		local zoneIndex = Device.EnsureZoneForLetter(zoneLetter)
+		local zone = Device.Zones[zoneIndex]
+		if property == "GAIN" then
+			zone.Gain = tonumber(value) or zone.Gain
+		elseif property == "MUTE" then
+			zone.Mute = value == "1"
+		elseif property == "PRIMARY_SRC" then
+			zone.InputID = tonumber(value) or zone.InputID
+		elseif property == "STEREO" then
+			zone.Stereo = value == "1"
+		end
+		return
+	end
+
+	-- +IN-<n>.STEREO, +IN-<n>.DYN.*, +SYSTEM.STATUS.SIGNAL_* y +ZONE-<z>.DYN.*
+	-- son informativos (metering, config de entrada) y todavía no tienen un
+	-- control de UI correspondiente; se ignoran por ahora sin marcarlos como
+	-- error.
+end
+
+-- Solo para Test Connection (simulación): el protocolo real no expone
+-- número de serie ni MAC, así que estos valores son de muestra, nunca
+-- datos de un amplificador real.
+function Device.SetSimulatedIdentity()
+	Device.Information.Serial = "MA12345678"
+	Device.Information.MAC = "00:11:22:33:44:55"
 end
 
 function funcValidateIP(argString)

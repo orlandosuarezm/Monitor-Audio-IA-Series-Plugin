@@ -3,10 +3,6 @@ TCP.Socket = TcpSocket.New()
 TCP.Socket.ReadTimeout = 0
 TCP.Socket.WriteTimeout = 0
 TCP.Socket.ReconnectTimeout = 2
-TCP.WaitingResponse = false
-TCP.PollTimer = Timer.New()
-
-tblPolling = { Enabled = false, Interval = 2, Index = 1, Commands = {} }
 
 function TCP.Connect(ip, port)
 	TCP.Disconnect()
@@ -16,8 +12,6 @@ end
 
 function TCP.Disconnect()
 	TCP.Socket:Disconnect()
-	TCP.WaitingResponse = false
-	TCP.StopPolling()
 	Device.Setup.Connected = false
 	Device.Setup.Power = false
 	Device.ClearInformation()
@@ -32,87 +26,55 @@ function TCP.Send(command)
 		return false
 	end
 
-	if TCP.WaitingResponse then
-		Logger.Error(tblDebug.Source.TCP, "Previous command still pending")
-		return false
-	end
-
-	TCP.WaitingResponse = true
 	TCP.Socket:Write(command .. kCommandEnd)
 	Logger.Tx(command)
 	return true
 end
 
-function TCP.StartPolling()
-	tblPolling.Enabled = true
-	tblPolling.Index = 1
-	TCP.PollTimer:Start(tblPolling.Interval)
-end
+-- El equipo puede acumular varias líneas de feedback en un mismo evento de
+-- socket (p. ej. tras SUBSCRIBE REG o la secuencia de inicialización), y
+-- cada línea es una respuesta independiente terminada en kAnswerEnd (ver
+-- docs/MonitorAudio_IA_Series_Control_LAN.docx, sección 3). Se divide el
+-- buffer y se procesa una línea a la vez, en vez de tratar todo el buffer
+-- como una única respuesta.
+function TCP.SplitLines(data)
+	local lines = {}
+	if not data or data == "" then return lines end
 
-function TCP.StopPolling()
-	tblPolling.Enabled = false
-	TCP.PollTimer:Stop()
-end
-
-function TCP.Polling()
-	if not tblPolling.Enabled or not Device.Setup.Connected or #tblPolling.Commands == 0 then
-		return
+	for line in (data .. kAnswerEnd):gmatch("(.-)" .. kAnswerEnd) do
+		if line ~= "" then table.insert(lines, line) end
 	end
 
-	TCP.Send(tblPolling.Commands[tblPolling.Index])
-	tblPolling.Index = tblPolling.Index % #tblPolling.Commands + 1
-end
-
-function TCP.FormatResponse(data)
-	if not data then
-		return ""
-	end
-
-	if data:sub(-#kAnswerEnd) == kAnswerEnd then
-		data = data:sub(1, -#kAnswerEnd - 1)
-	end
-
-	return data
-end
-
-TCP.PollTimer.EventHandler = function()
-	TCP.Polling()
+	return lines
 end
 
 TCP.Socket.EventHandler = function(sock, evt, err)
 	if evt == TcpSocket.Events.Connected then
 		Device.Setup.Connected = true
 		UI.UpdateDevice()
-		Protocol.Send("DeviceInfo")
-		TCP.StartPolling()
+		Protocol.RunInitSequence()
 	elseif evt == TcpSocket.Events.Reconnect then
 		Device.Setup.Connected = false
 		UI.UpdateDevice()
 	elseif evt == TcpSocket.Events.Data then
 		local data = sock:Read(sock.BufferLength)
 		if data then
-			TCP.WaitingResponse = false
-			local response = TCP.FormatResponse(data)
-			Logger.Rx(response)
-			Protocol.HandleResponse(response)
+			for _, line in ipairs(TCP.SplitLines(data)) do
+				Logger.Rx(line)
+				Protocol.HandleResponse(line)
+			end
 		end
 	elseif evt == TcpSocket.Events.Closed then
 		Device.Setup.Connected = false
-		TCP.WaitingResponse = false
-		TCP.StopPolling()
 		UI.UpdateDevice()
 	elseif evt == TcpSocket.Events.Error then
 		Device.Setup.Connected = false
-		TCP.WaitingResponse = false
-		TCP.StopPolling()
 		Device.ClearInformation()
 		UI.UpdateDevice()
 		UI.UpdateSetup()
 		Logger.Error(tblDebug.Source.TCP, tostring(err))
 	elseif evt == TcpSocket.Events.Timeout then
 		Device.Setup.Connected = false
-		TCP.WaitingResponse = false
-		TCP.StopPolling()
 		Device.ClearInformation()
 		UI.UpdateDevice()
 		UI.UpdateSetup()
