@@ -44,38 +44,30 @@ function UI.UpdateZones()
 	end
 end
 
--- Campos de "Amplifier information" que se pueden conocer sin conexión
--- real: Model y Description vienen de la propiedad "Model" (o, una vez
--- conectado, del propio amplificador). Serial y MAC solo existen si el
--- amplificador respondió de verdad, así que permanecen en blanco hasta
--- entonces (ver UI.UpdateDevice).
-local knownWithoutConnection = { Model = true, Description = true, Serial = false, MAC = false }
-
+-- Device Identifier / Modelo / Descripción / Serial / MAC deben reflejar
+-- únicamente datos reales del amplificador: permanecen en blanco hasta que
+-- se establece una conexión (Test Connection en simulación, o una conexión
+-- TCP real -- ver UI.TryConnect/UI.SimulateConnection en events.lua). La
+-- propiedad "Model" solo determina el número de canales que se
+-- previsualiza en el diseño (Device.ApplyPropertyModel, main.lua) y el
+-- panel gráfico "Selected model (design-time preview...)" en Setup
+-- (layout.lua) -- ninguno de los dos depende de estos Controls.
 function UI.UpdateDevice()
 	local connected = Device.Setup.Connected
 	UI.Connected = connected
 
-	-- El identificador de dispositivo (Device.Information.ID) es el ID del
-	-- modelo en tblModels: se conoce en cuanto hay un modelo seleccionado,
-	-- ya sea por la propiedad "Model" preseleccionada en el diseño
-	-- (Device.ApplyPropertyModel, ver main.lua) o por los datos reales que
-	-- reporta el propio amplificador al conectar (Device.ApplyResponse).
-	UI.DeviceID.String = tostring(Device.Information.ID or "")
-	UI.DeviceID.IsDisabled = Device.Information.ID == nil
+	UI.DeviceID.String = connected and tostring(Device.Information.ID or "") or ""
+	UI.DeviceID.IsDisabled = not connected
 
 	for name, control in pairs(UI.Information) do
-		local isKnown = knownWithoutConnection[name] or connected
-		control.String = isKnown and (Device.Information[name] or "") or ""
-		control.IsDisabled = not isKnown
+		control.String = connected and (Device.Information[name] or "") or ""
+		control.IsDisabled = not connected
 	end
 
 	UI.UpdateZones()
-	-- Las zonas se muestran en cuanto se conoce un número de canales, ya sea
-	-- por la propiedad "Model" preseleccionada en el diseño (Device.ApplyPropertyModel,
-	-- ver main.lua) o porque el amplificador real ya respondió y reportó su
-	-- propio modelo (Device.ApplyResponse). Los controles siguen deshabilitados
-	-- mientras Device.Setup.Power sea false, que solo pasa a true con datos
-	-- reales del amplificador.
+	-- Las zonas de la página Audio sí se muestran en cuanto se conoce un
+	-- número de canales (por la propiedad "Model" o por el amplificador
+	-- real), independientemente de esto: ver Device.GetZoneCount() abajo.
 	UI.EnableAudioControls(Device.GetZoneCount() > 0, Device.Setup.Power, Device.GetZoneCount())
 	UI.Setup.Power.IsDisabled, UI.Setup.Identify.IsDisabled = not connected, not connected
 	UI.Setup.Power.Boolean = Device.Setup.Power
