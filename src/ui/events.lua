@@ -67,22 +67,22 @@ for i = 1, kMaxZones do
 		UI.EnableAudioControls(UI.Connected, Device.Setup.Power, Device.GetZoneCount())
 	end
 
-	-- btnVolUp/btnVolDown son ButtonStyle = "Trigger" (momentáneos), no
-	-- "Toggle". Antes, el EventHandler exigía además `.Boolean == true` para
-	-- actuar, pero un botón Trigger solo pulsa Boolean a true durante un
-	-- instante y luego Q-SYS lo repone a false automáticamente; en el
-	-- emulador ese reset puede ya haber ocurrido para cuando corre este
-	-- EventHandler, así que la condición fallaba y el fader nunca se movía.
-	-- Que el EventHandler se dispare ya es el evento del trigger: no hace
-	-- falta comprobar además su estado Boolean.
+	-- btnVolUp/btnVolDown ahora son ButtonType/ButtonStyle = "Momentary" (no
+	-- "Trigger"): en pruebas, un "Trigger" dentro de un control-array
+	-- (Count = 12, como estos) nunca llegó a disparar su EventHandler al
+	-- hacer clic, aunque un "Trigger" individual (btnSimulateConnection) sí
+	-- funciona -- parece una limitación de Q-SYS específica a los Trigger
+	-- dentro de arrays. Un botón "Momentary" dispara su EventHandler tanto
+	-- al presionar (Boolean = true) como al soltar (Boolean = false), así
+	-- que se comprueba `.Boolean` para actuar solo en el flanco de presión.
 	UI.Zones[zoneIndex].VolUp.EventHandler = function()
-		if Device.SetZoneGain(zoneIndex, 1) then
+		if UI.Zones[zoneIndex].VolUp.Boolean and Device.SetZoneGain(zoneIndex, 1) then
 			Device.SetZoneMute(zoneIndex, false)
 			UI.UpdateZones()
 		end
 	end
 	UI.Zones[zoneIndex].VolDown.EventHandler = function()
-		if Device.SetZoneGain(zoneIndex, -1) then
+		if UI.Zones[zoneIndex].VolDown.Boolean and Device.SetZoneGain(zoneIndex, -1) then
 			Device.SetZoneMute(zoneIndex, false)
 			UI.UpdateZones()
 		end
