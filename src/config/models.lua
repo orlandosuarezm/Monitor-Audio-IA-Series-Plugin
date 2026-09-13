@@ -1,21 +1,17 @@
--- Los 5 amplificadores reales de la serie Monitor Audio IA, según páginas
--- de producto oficiales y de distribuidores (kevro.com, new-age-
--- electronics.com, Crutchfield, houseofstereo.com, monitoraudio.com).
+-- Gama actual de amplificadores de instalación Monitor Audio, verificada
+-- en vivo en monitoraudio.com/en/streamers-and-amplifiers/ (no una
+-- búsqueda ni una caché): IA750-4, IA750-2, IA125-4, IA60-12, IA60-4 (más
+-- el streamer IMS-4, que no es un amplificador y no está aquí).
 --
--- AVISO IMPORTANTE: esta lista de 5 modelos NO coincide con los 4 modelos
--- (IA60-4, IA125-4, IA800-2, IA800-4) documentados en
--- docs/MonitorAudio_IA_Series_Control_LAN.docx -- parecen pertenecer a una
--- generación o línea de producto distinta, con su propio protocolo LAN ya
--- confirmado por ingeniería inversa (ZONE-A/B/C/D, comandos GAIN/MUTE/
--- PRIMARY_SRC, etc. -- ver src/core/protocol.lua). Para ESTOS 5 modelos:
--- los ID numéricos y las letras de zona de abajo son una extrapolación
--- razonable a partir del número de canales de cada uno, NO están
--- confirmados contra ningún documento de protocolo real. En particular,
--- IA500-S es un amplificador DSP dedicado a subwoofers in-wall: no está
--- claro que use el mismo esquema de "zonas" que el resto, ni que hable el
--- mismo protocolo LAN documentado. Verificar contra el equipo real o un
--- documento de protocolo específico de esta línea antes de dar por buena
--- la comunicación con hardware real.
+-- Reemplaza dos listas previas que resultaron ser incorrectas para esta
+-- gama: la de 5 modelos "1G" (IA150-2, IA60-12, IA200-2C, IA150-8C,
+-- IA800-2C), confirmada como descontinuada en monitoraudio.com/en/support/
+-- past-products/amplifiers-1g/; y los nombres "IA800-2"/"IA800-4" que
+-- aparecían en docs/MonitorAudio_IA_Series_Control_LAN.docx, que todo
+-- apunta a que eran nombres internos/pre-lanzamiento de lo que salió al
+-- mercado como IA750-2/IA750-4 (mismas potencias, mismo canal count). El
+-- protocolo LAN (ZONE-<letra>, GAIN/MUTE/PRIMARY_SRC) se mantiene igual;
+-- solo cambia esta tabla de modelos.
 local function zoneModel(id, name, description, zones)
 	return { ID = id, Name = name, Description = description, Capabilities = { Zones = zones, Outputs = #zones } }
 end
@@ -27,19 +23,19 @@ local function letterRange(count)
 end
 
 tblModels = {
-	zoneModel(1, "IA150-2",
-		"2-channel amplifier delivering 150W per channel at 4 ohms, ideal for powering a stereo pair. Rear-panel volume adjustment, compact 1U rack design, Hypex amplification.",
+	zoneModel(1, "IA60-4",
+		"Compact 1U half-size 4-channel installation amplifier: 4 channels of 60W or 2 channels of 125W, full DSP matrix configuration, power sharing up to a single 250W channel.",
+		letterRange(4)),
+	zoneModel(2, "IA125-4",
+		"Compact 1U half-size 4-channel DSP amplifier: 4 channels of 125W or 2 channels of 250W, power sharing mode for THX Ultra certified Cinergy 100 speakers.",
+		letterRange(4)),
+	zoneModel(3, "IA750-2",
+		"2U full-size 2-channel DSP amplifier with 750W per channel, for larger installations, outdoor systems, or subwoofers (up to 1500W to a Cinergy Sub15). Full DSP matrix via web app configurator.",
 		letterRange(2)),
-	zoneModel(2, "IA150-8C",
-		"8-channel amplifier (4 stereo pairs) providing 150W per channel at 4 ohms, with IP control via RJ-45, DSP configuration, and removable block connectors.",
-		letterRange(8)),
-	zoneModel(3, "IA60-12",
-		"12-channel, 6-zone multi-room amplifier delivering 60W per channel at 4 ohms (bridged 100W at 8 ohms), independent volume controls, Hypex modules, ultra-low THD+N, flexible Buss inputs.",
-		letterRange(12)),
-	zoneModel(4, "IA750-2",
-		"High-power 2-channel amplifier delivering 750W per channel, suitable for subwoofers, large multi-room, or outdoor installations. DSP matrix configuration, web app control, BluOS integration.",
-		letterRange(2)),
-	zoneModel(5, "IA500-S",
-		"500W DSP amplifier dedicated to Monitor Audio Creator Series in-wall subwoofers (WS1-W10 and WS2-W12). Intelligent DSP tuning, precise bass management.",
-		letterRange(1))
+	zoneModel(4, "IA750-4",
+		"2U full-size 4-channel DSP amplifier with 750W per channel (1500W bridged), for large home theatre installations. Full DSP matrix configuration, THX Ultra certified Cinergy partner.",
+		letterRange(4)),
+	zoneModel(5, "IA60-12",
+		"2U 12-channel (6 stereo pairs) multi-room amplifier, configurable to 1, 2, 3, 4, 5, 6 or 12 channels, 60W per channel at 4 ohms (100W bridged at 8 ohms), Hypex amplification, Buss inputs and A/B loop outputs.",
+		letterRange(12))
 }
