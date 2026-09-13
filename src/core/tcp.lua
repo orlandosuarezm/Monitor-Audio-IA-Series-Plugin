@@ -6,6 +6,7 @@ TCP.Socket.ReconnectTimeout = 2
 
 function TCP.Connect(ip, port)
 	TCP.Disconnect()
+	Device.Setup.Simulated = false
 	TCP.Socket:Connect(ip, port)
 	Logger.Message(tblDebug.Source.TCP, string.format("Connecting to %s:%d", ip, port))
 end
@@ -14,13 +15,27 @@ function TCP.Disconnect()
 	TCP.Socket:Disconnect()
 	Device.Setup.Connected = false
 	Device.Setup.Power = false
+	Device.Setup.Simulated = false
 	Device.ClearInformation()
 	UI.UpdateDevice()
 	UI.UpdateSetup()
 	Logger.Message(tblDebug.Source.TCP, "Disconnect")
 end
 
+-- Device.Setup.Connected se pone a true tanto en una conexión TCP real
+-- como en la simulación (UI.SimulateConnection, ver events.lua), pero solo
+-- la real abre un socket de verdad. Antes, esta función comprobaba
+-- TCP.Socket.IsConnected sin más: en simulación eso siempre es false, así
+-- que cada acción (VOL+, mute, etc.) generaba un error falso de "socket no
+-- conectado" y el comando real que se habría enviado nunca se veía en el
+-- debug. Ahora, en simulación, se registra igual el comando (para poder
+-- depurar el flujo UI -> comando) pero sin tocar el socket real.
 function TCP.Send(command)
+	if Device.Setup.Simulated then
+		Logger.Tx("[SIM] " .. command)
+		return true
+	end
+
 	if not TCP.Socket.IsConnected then
 		Logger.Error(tblDebug.Source.TCP, "Socket not connected")
 		return false

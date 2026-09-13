@@ -1,7 +1,11 @@
+-- Off: nada. Errors: solo errores. Commands: errores + tráfico TX/RX real
+-- hacia/desde el amplificador (o simulado, con el prefijo "[SIM]"), sin
+-- ruido de cada clic de la UI. All: todo, incluyendo qué control de la UI
+-- disparó cada acción (ver src/core/logger.lua).
 table.insert(props, {
     Name = "DebugLevel",
     Type = "enum",
-    Choices = { "Off", "Errors", "All" },
+    Choices = { "Off", "Errors", "Commands", "All" },
     Value = "All"
 })
 

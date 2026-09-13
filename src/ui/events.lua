@@ -44,6 +44,7 @@ function UI.SimulateConnection()
 	end
 
 	TCP.Disconnect()
+	Device.Setup.Simulated = true
 	local deviceID = 1 -- IA60-4 (4 zonas), solo para tener algo representativo que mostrar en simulación
 	Device.Set(deviceID)
 	Device.SetSimulatedIdentity()
@@ -65,6 +66,7 @@ for i = 1, kMaxZones do
 			if tblInputs[inputID].Description == selectedDescription then newInputID = inputID break end
 		end
 		if not newInputID then return end
+		Logger.Message(tblDebug.Source.UI, "Zone " .. deviceZone.ZoneLetter .. " input -> " .. selectedDescription)
 		Device.SetZoneSource(zoneIndex, newInputID)
 		UI.UpdateZones()
 	end
@@ -77,28 +79,49 @@ for i = 1, kMaxZones do
 	-- dentro de arrays. Un botón "Momentary" dispara su EventHandler tanto
 	-- al presionar (Boolean = true) como al soltar (Boolean = false), así
 	-- que se comprueba `.Boolean` para actuar solo en el flanco de presión.
+	--
+	-- Cada acción de zona se registra con Logger.Message(Source.UI, ...)
+	-- ANTES de intentar enviar el comando: así, con DebugLevel = "All", se
+	-- ve la traza completa clic de UI -> comando generado, incluso cuando
+	-- Protocol.Send no llega a mandar nada (por ejemplo, sin conexión).
 	UI.Zones[zoneIndex].VolUp.EventHandler = function()
-		if UI.Zones[zoneIndex].VolUp.Boolean and Device.SetZoneGain(zoneIndex, 1) then
-			Device.SetZoneMute(zoneIndex, false)
-			UI.UpdateZones()
+		local zone = Device.Zones[zoneIndex]
+		if UI.Zones[zoneIndex].VolUp.Boolean and zone then
+			Logger.Message(tblDebug.Source.UI, "VOL+ zone " .. zone.ZoneLetter)
+			if Device.SetZoneGain(zoneIndex, 1) then
+				Device.SetZoneMute(zoneIndex, false)
+				UI.UpdateZones()
+			end
 		end
 	end
 	UI.Zones[zoneIndex].VolDown.EventHandler = function()
-		if UI.Zones[zoneIndex].VolDown.Boolean and Device.SetZoneGain(zoneIndex, -1) then
-			Device.SetZoneMute(zoneIndex, false)
-			UI.UpdateZones()
+		local zone = Device.Zones[zoneIndex]
+		if UI.Zones[zoneIndex].VolDown.Boolean and zone then
+			Logger.Message(tblDebug.Source.UI, "VOL- zone " .. zone.ZoneLetter)
+			if Device.SetZoneGain(zoneIndex, -1) then
+				Device.SetZoneMute(zoneIndex, false)
+				UI.UpdateZones()
+			end
 		end
 	end
 	UI.Zones[zoneIndex].Mute.EventHandler = function()
-		if Device.Zones[zoneIndex] then Device.SetZoneMute(zoneIndex, UI.Zones[zoneIndex].Mute.Boolean); UI.UpdateZones() end
+		local zone = Device.Zones[zoneIndex]
+		if zone then
+			Logger.Message(tblDebug.Source.UI, "MUTE zone " .. zone.ZoneLetter .. " -> " .. tostring(UI.Zones[zoneIndex].Mute.Boolean))
+			Device.SetZoneMute(zoneIndex, UI.Zones[zoneIndex].Mute.Boolean)
+			UI.UpdateZones()
+		end
 	end
 	UI.Zones[zoneIndex].Fader.EventHandler = function()
+		local zone = Device.Zones[zoneIndex]
+		if zone then Logger.Message(tblDebug.Source.UI, "Fader zone " .. zone.ZoneLetter .. " -> " .. tostring(UI.Zones[zoneIndex].Fader.Value)) end
 		if Device.SetZoneGainAbsolute(zoneIndex, UI.Zones[zoneIndex].Fader.Value) then Device.SetZoneMute(zoneIndex, false); UI.UpdateZones() end
 	end
 end
 
 UI.Setup.Power.EventHandler = function()
 	Device.Setup.Power = UI.Setup.Power.Boolean
+	Logger.Message(tblDebug.Source.UI, Device.Setup.Power and "Power On" or "Power Off")
 	if Device.Setup.Connected then
 		Protocol.Send(Device.Setup.Power and "PowerOn" or "PowerOff")
 	end

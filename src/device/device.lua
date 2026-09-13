@@ -5,7 +5,7 @@ Device = {
 	-- Device.SetSimulatedIdentity() en modo simulación, nunca una conexión
 	-- real.
 	Information = { ID = nil, Model = "", Serial = "", MAC = "", Description = "" },
-	Setup = { IP = "", Port = 0, Connected = false, Power = false },
+	Setup = { IP = "", Port = 0, Connected = false, Power = false, Simulated = false },
 	-- SystemStatus/InputStatus guardan feedback informativo (metering,
 	-- estado de entradas) que hoy no tiene un control de UI propio: se
 	-- capturan igualmente para no perder datos, listos para cablearse a
@@ -25,7 +25,7 @@ end
 
 function Device.Init()
 	Device.Information = { ID = nil, Model = "", Serial = "", MAC = "", Description = "" }
-	Device.Setup = { IP = "", Port = 0, Connected = false, Power = false }
+	Device.Setup = { IP = "", Port = 0, Connected = false, Power = false, Simulated = false }
 	Device.SystemStatus = { SignalIn = "", SignalOut = "" }
 	Device.InputStatus = {}
 	Device.Inputs = tblInputs
