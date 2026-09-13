@@ -44,7 +44,7 @@ function UI.SimulateConnection()
 	end
 
 	TCP.Disconnect()
-	local deviceID = 2 -- IA125-4 (4 zonas), solo para tener algo representativo que mostrar en simulación
+	local deviceID = 1 -- IA150-2 (2 zonas), solo para tener algo representativo que mostrar en simulación
 	Device.Set(deviceID)
 	Device.SetSimulatedIdentity()
 	Device.Setup.Connected = true
